@@ -1,487 +1,211 @@
-"use strict";
+/* =========================
+   PUBLISH PROJECT
+========================= */
 
-console.log("=== MAH3D SCRIPT V2 START ===");
+const uploadForm = document.getElementById("uploadForm");
 
-const SUPABASE_URL =
-    "https://drfxgjvvldccxbccgiud.supabase.co";
+if (uploadForm) {
 
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_iaxxz6gFjhMdR5tTZGZMOg_CiSibohE";
+    uploadForm.addEventListener("submit", async function (event) {
 
-console.log("SUPABASE URL:", SUPABASE_URL);
-console.log(
-    "KEY:",
-    SUPABASE_PUBLISHABLE_KEY.substring(0, 20) + "..."
-);
+        event.preventDefault();
 
-if (!window.supabase) {
-    console.error("Supabase JS library not loaded!");
-    alert("Supabase JS library not loaded!");
-} else {
+        console.log("PUBLISH BUTTON CLICKED");
 
-    const supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-        );
+        const progress =
+            document.getElementById("uploadProgress");
 
-    window.supabaseClient = supabaseClient;
+        const title =
+            document.getElementById("projectTitle").value.trim();
 
-    console.log("Supabase client created");
+        const description =
+            document.getElementById("projectDescription").value.trim();
 
+        const category =
+            document.getElementById("projectCategory").value;
 
-    async function testConnection() {
+        const fileInput =
+            document.getElementById("projectFile");
 
-        console.log("Testing Supabase connection...");
+        const file =
+            fileInput.files[0];
 
-        const result =
-            await supabaseClient
-                .from("projects")
-                .select("id")
-                .limit(1);
-
-        console.log("SUPABASE RESULT:", result);
-
-        if (result.error) {
-
-            console.error(
-                "SUPABASE ERROR:",
-                result.error
-            );
-
-            showMessage(
-                "❌ Supabase: " +
-                result.error.message
-            );
-
-            return false;
-        }
-
-        console.log(
-            "✅ SUPABASE CONNECTION OK"
-        );
-
-        return true;
-    }
-
-
-    function showMessage(message) {
-
-        const box =
-            document.getElementById(
-                "loginMessage"
-            );
-
-        if (box) {
-            box.textContent = message;
-        }
-
-        console.log(message);
-    }
-
-
-    async function login() {
-
-        const email =
-            document.getElementById(
-                "email"
-            ).value.trim();
-
-        const password =
-            document.getElementById(
-                "password"
-            ).value;
-
-        if (!email || !password) {
-
-            showMessage(
-                "❌ Ampidiro email sy password."
-            );
-
+        if (!title) {
+            progress.textContent = "❌ Ampidiro ny Project Title.";
             return;
         }
 
-        showMessage(
-            "⏳ Login..."
-        );
-
-        console.log(
-            "LOGIN EMAIL:",
-            email
-        );
-
-        const result =
-            await supabaseClient.auth
-                .signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-        console.log(
-            "LOGIN RESULT:",
-            result
-        );
-
-        if (result.error) {
-
-            showMessage(
-                "❌ " +
-                result.error.message
-            );
-
+        if (!file) {
+            progress.textContent = "❌ Misafidiana fichier.";
             return;
         }
 
-        if (!result.data.session) {
+        progress.textContent =
+            "⏳ Checking admin session...";
 
-            showMessage(
-                "❌ Tsy nahazo session."
-            );
+        try {
 
-            return;
-        }
-
-        showMessage(
-            "✅ LOGIN SUCCESS"
-        );
-
-        const loginBox =
-            document.getElementById(
-                "loginBox"
-            );
-
-        const dashboard =
-            document.getElementById(
-                "dashboard"
-            );
-
-        if (loginBox) {
-            loginBox.classList.add(
-                "hidden"
-            );
-        }
-
-        if (dashboard) {
-            dashboard.classList.remove(
-                "hidden"
-            );
-        }
-
-        await loadProjects();
-    }
-
-
-    async function logout() {
-
-        await supabaseClient.auth.signOut();
-
-        const loginBox =
-            document.getElementById(
-                "loginBox"
-            );
-
-        const dashboard =
-            document.getElementById(
-                "dashboard"
-            );
-
-        if (loginBox) {
-            loginBox.classList.remove(
-                "hidden"
-            );
-        }
-
-        if (dashboard) {
-            dashboard.classList.add(
-                "hidden"
-            );
-        }
-
-        showMessage("");
-    }
-
-
-    async function loadProjects() {
-
-        console.log(
-            "Loading projects..."
-        );
-
-        const result =
-            await supabaseClient
-                .from("projects")
-                .select("*")
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
-
-        console.log(
-            "PROJECT RESULT:",
-            result
-        );
-
-        if (result.error) {
-
-            console.error(
-                "PROJECT ERROR:",
-                result.error
-            );
-
-            showMessage(
-                "❌ PROJECT ERROR: " +
-                result.error.message
-            );
-
-            return;
-        }
-
-        const projects =
-            result.data || [];
-
-        console.log(
-            "PROJECT COUNT:",
-            projects.length
-        );
-
-        const count =
-            document.getElementById(
-                "projectCount"
-            );
-
-        if (count) {
-            count.textContent =
-                projects.length;
-        }
-
-        renderProjects(projects);
-        renderAdminProjects(projects);
-    }
-
-
-    function renderProjects(projects) {
-
-        const grid =
-            document.getElementById(
-                "projectsGrid"
-            );
-
-        if (!grid) return;
-
-        if (!projects.length) {
-
-            grid.innerHTML =
-                "<p>No projects published yet.</p>";
-
-            return;
-        }
-
-        grid.innerHTML =
-            projects.map(
-                function(project) {
-
-                    return `
-                        <article class="project-card">
-
-                            <span class="category">
-                                ${escapeHtml(
-                                    project.category || "Other"
-                                )}
-                            </span>
-
-                            <h3>
-                                ${escapeHtml(
-                                    project.title
-                                )}
-                            </h3>
-
-                            <p>
-                                ${escapeHtml(
-                                    project.description || ""
-                                )}
-                            </p>
-
-                            <a
-                                class="btn primary"
-                                href="${escapeHtml(
-                                    project.file_url
-                                )}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Download
-                            </a>
-
-                        </article>
-                    `;
-                }
-            ).join("");
-    }
-
-
-    function renderAdminProjects(projects) {
-
-        const box =
-            document.getElementById(
-                "adminProjects"
-            );
-
-        if (!box) return;
-
-        if (!projects.length) {
-
-            box.innerHTML =
-                "<p>No projects.</p>";
-
-            return;
-        }
-
-        box.innerHTML =
-            projects.map(
-                function(project) {
-
-                    return `
-                        <div class="admin-row">
-
-                            <div>
-                                <strong>
-                                    ${escapeHtml(
-                                        project.title
-                                    )}
-                                </strong>
-
-                                <div>
-                                    ${escapeHtml(
-                                        project.category || "Other"
-                                    )}
-                                </div>
-                            </div>
-
-                            <button
-                                class="btn danger"
-                                onclick="deleteProject('${project.id}')"
-                            >
-                                Delete
-                            </button>
-
-                        </div>
-                    `;
-                }
-            ).join("");
-    }
-
-
-    window.deleteProject =
-        async function(id) {
-
-            if (
-                !confirm(
-                    "Delete this project?"
-                )
-            ) {
-                return;
-            }
-
-            const result =
-                await supabaseClient
-                    .from("projects")
-                    .delete()
-                    .eq("id", id);
-
-            if (result.error) {
-
-                alert(
-                    result.error.message
-                );
-
-                return;
-            }
-
-            await loadProjects();
-        };
-
-
-    function escapeHtml(value) {
-
-        return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-
-    window.addEventListener(
-        "DOMContentLoaded",
-        async function() {
-
-            console.log(
-                "MAH3D DOM READY"
-            );
-
-            const loginForm =
-                document.getElementById(
-                    "loginForm"
-                );
-
-            if (loginForm) {
-
-                loginForm.addEventListener(
-                    "submit",
-                    async function(event) {
-
-                        event.preventDefault();
-
-                        await login();
-                    }
-                );
-            }
-
-            const logoutBtn =
-                document.getElementById(
-                    "logoutBtn"
-                );
-
-            if (logoutBtn) {
-
-                logoutBtn.addEventListener(
-                    "click",
-                    logout
-                );
-            }
+            /* CHECK LOGIN */
 
             const sessionResult =
-                await supabaseClient.auth
-                    .getSession();
+                await supabaseClient.auth.getSession();
+
+            const session =
+                sessionResult.data.session;
 
             console.log(
-                "SESSION:",
-                sessionResult
+                "UPLOAD SESSION:",
+                session
             );
 
-            if (
-                sessionResult.data &&
-                sessionResult.data.session
-            ) {
+            if (!session) {
 
-                document
-                    .getElementById("loginBox")
-                    ?.classList.add("hidden");
+                progress.textContent =
+                    "❌ Tsy mbola login.";
 
-                document
-                    .getElementById("dashboard")
-                    ?.classList.remove("hidden");
-
-                await loadProjects();
+                return;
             }
 
-            /*
-             * TEST API
-             */
-            await testConnection();
+
+            /* FILE NAME */
+
+            const safeName =
+                file.name.replace(
+                    /[^a-zA-Z0-9._-]/g,
+                    "_"
+                );
+
+            const filePath =
+                Date.now() + "_" + safeName;
+
+
+            /* UPLOAD FILE */
+
+            progress.textContent =
+                "📤 Uploading " + file.name + "...";
+
+            console.log(
+                "Uploading:",
+                filePath
+            );
+
+            const uploadResult =
+                await supabaseClient
+                    .storage
+                    .from("projects")
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            cacheControl: "3600",
+                            upsert: false
+                        }
+                    );
+
+            console.log(
+                "STORAGE RESULT:",
+                uploadResult
+            );
+
+            if (uploadResult.error) {
+
+                throw new Error(
+                    "Storage: " +
+                    uploadResult.error.message
+                );
+            }
+
+
+            /* PUBLIC URL */
+
+            progress.textContent =
+                "🔗 Creating public link...";
+
+            const publicResult =
+                supabaseClient
+                    .storage
+                    .from("projects")
+                    .getPublicUrl(filePath);
+
+            const publicUrl =
+                publicResult.data.publicUrl;
+
+            console.log(
+                "PUBLIC URL:",
+                publicUrl
+            );
+
+
+            /* DATABASE */
+
+            progress.textContent =
+                "💾 Saving project...";
+
+            const databaseResult =
+                await supabaseClient
+                    .from("projects")
+                    .insert({
+                        title: title,
+                        description: description,
+                        category: category,
+                        file_url: publicUrl,
+                        file_name: file.name
+                    })
+                    .select()
+                    .single();
+
+            console.log(
+                "DATABASE RESULT:",
+                databaseResult
+            );
+
+            if (databaseResult.error) {
+
+                /* remove uploaded file if DB fails */
+
+                await supabaseClient
+                    .storage
+                    .from("projects")
+                    .remove([filePath]);
+
+                throw new Error(
+                    "Database: " +
+                    databaseResult.error.message
+                );
+            }
+
+
+            /* SUCCESS */
+
+            progress.textContent =
+                "✅ PROJECT PUBLISHED SUCCESSFULLY!";
+
+            console.log(
+                "PROJECT PUBLISHED:",
+                databaseResult.data
+            );
+
+            uploadForm.reset();
+
+            await loadProjects();
+
+
+        } catch (error) {
+
+            console.error(
+                "PUBLISH ERROR:",
+                error
+            );
+
+            progress.textContent =
+                "❌ " + error.message;
         }
+
+    });
+
+} else {
+
+    console.error(
+        "uploadForm NOT FOUND"
     );
 }
