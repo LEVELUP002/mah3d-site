@@ -1,86 +1,139 @@
 ```javascript
 /* =========================
-   MOBILE MENU
+   MAH3D ADMIN LOGIN
 ========================= */
 
-const menuButton =
-    document.getElementById("menuButton");
+/*
+   IMPORTANT:
+   This is only a client-side demo login.
+   GitHub Pages has no secure backend.
+*/
 
-const mainNav =
-    document.getElementById("mainNav");
+const adminLoginForm =
+    document.getElementById("adminLoginForm");
 
-if (menuButton) {
+const loginPanel =
+    document.getElementById("loginPanel");
 
-    menuButton.addEventListener(
-        "click",
-        () => {
+const adminDashboard =
+    document.getElementById("adminDashboard");
 
-            mainNav.classList.toggle("open");
+const loginMessage =
+    document.getElementById("loginMessage");
 
-        }
-    );
+const logoutButton =
+    document.getElementById("logoutButton");
 
-}
+const projectCount =
+    document.getElementById("projectCount");
+
+const adminProjectUpload =
+    document.getElementById("adminProjectUpload");
+
+const adminUploadMessage =
+    document.getElementById("adminUploadMessage");
 
 
-document
-    .querySelectorAll("#mainNav a")
-    .forEach(link => {
+/*
+   DEMO LOGIN
 
-        link.addEventListener(
-            "click",
-            () => {
+   Change these values for your local demo,
+   but do NOT use real sensitive passwords here.
+*/
 
-                mainNav.classList.remove("open");
+const DEMO_USERNAME = "admin";
+const DEMO_PASSWORD = "MAH3D2026";
 
-            }
+
+function updateProjectCount() {
+
+    const projects =
+        JSON.parse(
+            localStorage.getItem(
+                "mah3d_projects"
+            ) || "[]"
         );
 
-    });
-
-
-
-/* =========================
-   PROJECT MODAL
-========================= */
-
-const projectModal =
-    document.getElementById("projectModal");
-
-const modalTitle =
-    document.getElementById("modalTitle");
-
-const modalDescription =
-    document.getElementById("modalDescription");
-
-
-function showProject(name, description) {
-
-    modalTitle.textContent = name;
-
-    modalDescription.textContent =
-        description;
-
-    projectModal.classList.add("active");
+    if (projectCount) {
+        projectCount.textContent =
+            projects.length;
+    }
 
 }
 
 
-function closeProject() {
+function showDashboard() {
 
-    projectModal.classList.remove("active");
+    if (loginPanel) {
+        loginPanel.hidden = true;
+    }
+
+    if (adminDashboard) {
+        adminDashboard.hidden = false;
+    }
+
+    updateProjectCount();
 
 }
 
 
-if (projectModal) {
+function showLogin() {
 
-    projectModal.addEventListener(
-        "click",
-        event => {
+    if (loginPanel) {
+        loginPanel.hidden = false;
+    }
 
-            if (event.target === projectModal) {
-                closeProject();
+    if (adminDashboard) {
+        adminDashboard.hidden = true;
+    }
+
+}
+
+
+if (adminLoginForm) {
+
+    adminLoginForm.addEventListener(
+        "submit",
+        function(event) {
+
+            event.preventDefault();
+
+            const username =
+                document
+                    .getElementById(
+                        "adminUsername"
+                    )
+                    .value
+                    .trim();
+
+            const password =
+                document
+                    .getElementById(
+                        "adminPassword"
+                    )
+                    .value;
+
+
+            if (
+                username === DEMO_USERNAME &&
+                password === DEMO_PASSWORD
+            ) {
+
+                sessionStorage.setItem(
+                    "mah3d_admin",
+                    "true"
+                );
+
+                loginMessage.textContent = "";
+
+                showDashboard();
+
+            }
+            else {
+
+                loginMessage.textContent =
+                    "Invalid username or password.";
+
             }
 
         }
@@ -89,41 +142,29 @@ if (projectModal) {
 }
 
 
+if (logoutButton) {
 
-/* =========================
-   DOWNLOAD
-========================= */
+    logoutButton.addEventListener(
+        "click",
+        function() {
 
-function downloadSoon() {
+            sessionStorage.removeItem(
+                "mah3d_admin"
+            );
 
-    alert(
-        "MAH3D DOWNLOAD\n\n" +
-        "This file will be available soon."
+            showLogin();
+
+        }
     );
 
 }
 
 
+if (adminProjectUpload) {
 
-/* =========================
-   PROJECT UPLOAD
-========================= */
-
-const projectUpload =
-    document.getElementById("projectUpload");
-
-const uploadMessage =
-    document.getElementById("uploadMessage");
-
-const projectGrid =
-    document.getElementById("projectGrid");
-
-
-if (projectUpload) {
-
-    projectUpload.addEventListener(
+    adminProjectUpload.addEventListener(
         "change",
-        function () {
+        function() {
 
             if (!this.files.length) {
                 return;
@@ -131,128 +172,45 @@ if (projectUpload) {
 
             const file = this.files[0];
 
-            const extension =
-                file.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
+            adminUploadMessage.innerHTML =
+                "✓ Selected: <strong>" +
+                escapeHTML(file.name) +
+                "</strong><br>" +
+                "Ready for a real backend upload.";
 
+            /*
+               Save project metadata locally.
+               The actual file is NOT uploaded to GitHub.
+            */
 
-            let category = "other";
-
-            if (
-                extension === "blend" ||
-                extension === "fbx" ||
-                extension === "obj" ||
-                extension === "glb" ||
-                extension === "gltf"
-            ) {
-
-                category = "3d";
-
-            }
-            else if (
-                extension === "exe" ||
-                extension === "py"
-            ) {
-
-                category = "software";
-
-            }
-            else if (
-                extension === "zip" ||
-                extension === "rar" ||
-                extension === "7z"
-            ) {
-
-                category = "other";
-
-            }
-
-
-            const projectName =
-                file.name.replace(
-                    /\.[^/.]+$/,
-                    ""
+            const projects =
+                JSON.parse(
+                    localStorage.getItem(
+                        "mah3d_projects"
+                    ) || "[]"
                 );
 
+            projects.push({
 
-            const card =
-                document.createElement("article");
+                name:
+                    file.name.replace(
+                        /\.[^/.]+$/,
+                        ""
+                    ),
 
+                filename: file.name,
 
-            card.className =
-                "project-card";
+                date:
+                    new Date().toISOString()
 
-            card.dataset.category =
-                category;
+            });
 
-            card.dataset.name =
-                projectName.toLowerCase();
-
-
-            card.innerHTML = `
-
-                <div class="project-image project-purple">
-
-                    <span>
-                        ${extension.toUpperCase()}
-                    </span>
-
-                </div>
-
-                <div class="project-body">
-
-                    <small>
-                        ${category.toUpperCase()}
-                    </small>
-
-                    <h3>
-                        ${escapeHTML(projectName)}
-                    </h3>
-
-                    <p>
-                        Added from your computer.
-                    </p>
-
-                    <button
-                        class="project-view"
-                        onclick="showProject(
-                            '${escapeJS(projectName)}',
-                            'Local project file: ${escapeJS(file.name)}'
-                        )"
-                    >
-                        VIEW PROJECT
-                    </button>
-
-                </div>
-            `;
-
-
-            projectGrid.appendChild(card);
-
-
-            uploadMessage.innerHTML =
-                "✓ Project added: <strong>" +
-                escapeHTML(file.name) +
-                "</strong>";
-
-
-            /*
-             * Save project information locally.
-             * The actual file is NOT uploaded to GitHub.
-             */
-
-            saveProjectInfo(
-                projectName,
-                category,
-                file.name
+            localStorage.setItem(
+                "mah3d_projects",
+                JSON.stringify(projects)
             );
 
-
-            /*
-             * Reset file selector
-             */
+            updateProjectCount();
 
             this.value = "";
 
@@ -262,283 +220,22 @@ if (projectUpload) {
 }
 
 
+/*
+   Restore admin session
+*/
 
-/* =========================
-   LOCAL PROJECT STORAGE
-========================= */
-
-function saveProjectInfo(
-    name,
-    category,
-    filename
+if (
+    sessionStorage.getItem(
+        "mah3d_admin"
+    ) === "true"
 ) {
 
-    const projects =
-        JSON.parse(
-            localStorage.getItem(
-                "mah3d_projects"
-            ) || "[]"
-        );
-
-
-    projects.push({
-
-        name: name,
-        category: category,
-        filename: filename,
-        date: new Date().toISOString()
-
-    });
-
-
-    localStorage.setItem(
-        "mah3d_projects",
-        JSON.stringify(projects)
-    );
+    showDashboard();
 
 }
+else {
 
-
-
-/* =========================
-   SEARCH PROJECTS
-========================= */
-
-const projectSearch =
-    document.getElementById("projectSearch");
-
-const projectFilter =
-    document.getElementById("projectFilter");
-
-
-function filterProjects() {
-
-    const search =
-        projectSearch.value
-            .toLowerCase()
-            .trim();
-
-    const filter =
-        projectFilter.value;
-
-
-    const cards =
-        document.querySelectorAll(
-            ".project-card"
-        );
-
-
-    cards.forEach(card => {
-
-        const name =
-            card.dataset.name || "";
-
-        const category =
-            card.dataset.category || "other";
-
-
-        const searchMatch =
-            name.includes(search);
-
-        const categoryMatch =
-            filter === "all" ||
-            category === filter;
-
-
-        if (
-            searchMatch &&
-            categoryMatch
-        ) {
-
-            card.style.display = "";
-
-        }
-        else {
-
-            card.style.display = "none";
-
-        }
-
-    });
-
-}
-
-
-if (projectSearch) {
-
-    projectSearch.addEventListener(
-        "input",
-        filterProjects
-    );
-
-}
-
-
-if (projectFilter) {
-
-    projectFilter.addEventListener(
-        "change",
-        filterProjects
-    );
-
-}
-
-
-
-/* =========================
-   BACK TO TOP
-========================= */
-
-const topButton =
-    document.getElementById("topButton");
-
-
-window.addEventListener(
-    "scroll",
-    () => {
-
-        if (window.scrollY > 500) {
-
-            topButton.classList.add(
-                "show"
-            );
-
-        }
-        else {
-
-            topButton.classList.remove(
-                "show"
-            );
-
-        }
-
-    }
-);
-
-
-topButton.addEventListener(
-    "click",
-    () => {
-
-        window.scrollTo({
-
-            top: 0,
-
-            behavior: "smooth"
-
-        });
-
-    }
-);
-
-
-
-/* =========================
-   SCROLL REVEAL
-========================= */
-
-const revealElements =
-    document.querySelectorAll(
-        ".service-card, " +
-        ".project-card, " +
-        ".download-item, " +
-        ".contact-card, " +
-        ".feature, " +
-        ".about-logo"
-    );
-
-
-const revealObserver =
-    new IntersectionObserver(
-        entries => {
-
-            entries.forEach(
-                entry => {
-
-                    if (
-                        entry.isIntersecting
-                    ) {
-
-                        entry.target.classList.add(
-                            "visible"
-                        );
-
-                    }
-
-                }
-            );
-
-        },
-        {
-            threshold: .12
-        }
-    );
-
-
-revealElements.forEach(
-    element => {
-
-        element.style.opacity = "0";
-
-        element.style.transform =
-            "translateY(25px)";
-
-        element.style.transition =
-            "opacity .7s ease, " +
-            "transform .7s ease";
-
-        revealObserver.observe(
-            element
-        );
-
-    }
-);
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        document
-            .querySelectorAll(".visible")
-            .forEach(element => {
-
-                element.style.opacity = "1";
-
-                element.style.transform =
-                    "translateY(0)";
-
-            });
-
-    }
-);
-
-
-
-/* =========================
-   SAFETY HELPERS
-========================= */
-
-function escapeHTML(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent = text;
-
-    return div.innerHTML;
-
-}
-
-
-function escapeJS(text) {
-
-    return String(text)
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, "\\n")
-        .replace(/\r/g, "\\r");
+    showLogin();
 
 }
 ```
