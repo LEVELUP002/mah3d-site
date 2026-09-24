@@ -1,271 +1,811 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAH3D — Projects & Downloads</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>MAH3D - Projects & Downloads</title>
+
+    <meta
+        name="description"
+        content="MAH3D Projects, Tools and Downloads"
+    >
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
 
+<!-- =========================
+     HEADER
+========================= -->
+
 <header class="header">
-  <div class="logo">MAH<span>3D</span></div>
 
-  <button id="menuBtn" class="menu-btn">☰</button>
+    <div class="container nav-container">
 
-  <nav id="nav">
-    <a href="#home">Home</a>
-    <a href="#projects">Projects</a>
-    <a href="#downloads">Downloads</a>
-    <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-    <a href="#admin">🔐 Admin</a>
-  </nav>
+        <a
+            href="#home"
+            class="logo"
+        >
+            MAH<span>3D</span>
+        </a>
+
+        <button
+            id="menuBtn"
+            class="menu-btn"
+            type="button"
+        >
+            ☰
+        </button>
+
+        <nav id="nav">
+
+            <a href="#home">
+                Home
+            </a>
+
+            <a href="#projects">
+                Projects
+            </a>
+
+            <a href="#downloads">
+                Downloads
+            </a>
+
+            <a href="#about">
+                About
+            </a>
+
+            <a href="#contact">
+                Contact
+            </a>
+
+            <a href="#admin">
+                Admin
+            </a>
+
+        </nav>
+
+    </div>
+
 </header>
+
+
+<!-- =========================
+     HOME
+========================= -->
 
 <main>
 
-<section id="home" class="hero">
-  <div>
-    <p class="badge">MAH3D STUDIO</p>
-    <h1>Build. Create.<br><span>Share.</span></h1>
+<section
+    id="home"
+    class="hero"
+>
 
-    <p>
-      Welcome to MAH3D — a public space for 3D projects,
-      tools, downloads and creations.
-    </p>
+    <div class="container hero-content">
 
-    <div class="hero-buttons">
-      <a href="#projects" class="btn primary">View Projects</a>
-      <a href="#admin" class="btn secondary">Admin Login</a>
-    </div>
-  </div>
-</section>
+        <div>
 
-<section id="projects" class="section">
-  <div class="section-title">
-    <p class="badge">PUBLIC</p>
-    <h2>Projects</h2>
-    <p>Projects published by MAH3D.</p>
-  </div>
+            <span class="hero-badge">
+                MAH3D STUDIO
+            </span>
 
-  <div class="toolbar">
-    <input
-      id="searchInput"
-      type="search"
-      placeholder="Search projects..."
-    >
+            <h1>
+                Build.
+                <span>Create.</span>
+                Share.
+            </h1>
 
-    <select id="categoryFilter">
-      <option value="all">All categories</option>
-      <option value="Blender">Blender</option>
-      <option value="BUSSID">BUSSID</option>
-      <option value="ETS">ETS</option>
-      <option value="Tools">Tools</option>
-      <option value="Other">Other</option>
-    </select>
-  </div>
+            <p>
+                Welcome to MAH3D — projects, tools,
+                3D resources and downloadable files.
+            </p>
 
-  <div id="projectsGrid" class="projects-grid">
-    <div class="loading">Loading projects...</div>
-  </div>
-</section>
+            <div class="hero-buttons">
 
-<section id="downloads" class="section dark-section">
-  <div class="section-title">
-    <p class="badge">FILES</p>
-    <h2>Downloads</h2>
-    <p>Public files uploaded by the MAH3D admin.</p>
-  </div>
+                <a
+                    href="#projects"
+                    class="btn primary"
+                >
+                    Explore Projects
+                </a>
 
-  <div id="downloadsList" class="downloads-list">
-    <div class="loading">Loading downloads...</div>
-  </div>
-</section>
+                <a
+                    href="#downloads"
+                    class="btn secondary"
+                >
+                    Downloads
+                </a>
 
-<section id="about" class="section">
-  <div class="about-box">
-    <p class="badge">ABOUT</p>
-    <h2>MAH3D</h2>
+            </div>
 
-    <p>
-      MAH3D is a personal creative project focused on
-      3D modeling, Blender tools, game assets and software projects.
-    </p>
-  </div>
-</section>
+        </div>
 
-<section id="contact" class="section dark-section">
-  <div class="section-title">
-    <p class="badge">CONTACT</p>
-    <h2>Contact MAH3D</h2>
-  </div>
-
-  <div class="contact-grid">
-
-    <a
-      class="contact-card"
-      href="https://wa.me/26138325286"
-      target="_blank"
-    >
-      <strong>WhatsApp</strong>
-      <span>+261 38 32 528 26</span>
-    </a>
-
-    <a
-      class="contact-card"
-      href="mailto:julienmg@gmail.com"
-    >
-      <strong>Email</strong>
-      <span>julienmg@gmail.com</span>
-    </a>
-
-  </div>
-</section>
-
-<section id="admin" class="section admin-section">
-
-  <div class="section-title">
-    <p class="badge">PRIVATE AREA</p>
-    <h2>Admin Panel</h2>
-    <p>Only authenticated users can publish projects.</p>
-  </div>
-
-  <div id="loginBox" class="admin-box">
-
-    <h3>Admin Login</h3>
-
-    <form id="loginForm">
-
-      <input
-        id="email"
-        type="email"
-        placeholder="Admin email"
-        required
-      >
-
-      <input
-        id="password"
-        type="password"
-        placeholder="Password"
-        required
-      >
-
-      <button class="btn primary" type="submit">
-        Login
-      </button>
-
-      <p id="loginMessage" class="message"></p>
-
-    </form>
-  </div>
-
-  <div id="dashboard" class="dashboard hidden">
-
-    <div class="dashboard-head">
-      <div>
-        <p class="badge">ADMIN</p>
-        <h3>MAH3D Dashboard</h3>
-      </div>
-
-      <button id="logoutBtn" class="btn danger">
-        Logout
-      </button>
     </div>
 
-    <div class="stats">
-      <div>
-        <strong id="projectCount">0</strong>
-        <span>Projects</span>
-      </div>
-    </div>
+</section>
 
-    <div class="upload-box">
 
-      <h3>Publish New Project</h3>
+<!-- =========================
+     PROJECTS
+========================= -->
 
-      <form id="uploadForm">
+<section
+    id="projects"
+    class="section"
+>
 
-        <input
-          id="projectTitle"
-          type="text"
-          placeholder="Project title"
-          required
+    <div class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    PORTFOLIO
+                </span>
+
+                <h2>
+                    Projects
+                </h2>
+
+            </div>
+
+            <div class="filters">
+
+                <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Search projects..."
+                >
+
+                <select id="categoryFilter">
+
+                    <option value="all">
+                        All Categories
+                    </option>
+
+                    <option value="Blender">
+                        Blender
+                    </option>
+
+                    <option value="BUSSID">
+                        BUSSID
+                    </option>
+
+                    <option value="Tools">
+                        Tools
+                    </option>
+
+                    <option value="Android">
+                        Android
+                    </option>
+
+                    <option value="PC">
+                        PC
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="projectsGrid"
+            class="projects-grid"
         >
 
-        <textarea
-          id="projectDescription"
-          placeholder="Project description"
-          rows="5"
-        ></textarea>
+            <div class="loading">
+                Loading projects...
+            </div>
 
-        <select id="projectCategory">
-          <option value="Blender">Blender</option>
-          <option value="BUSSID">BUSSID</option>
-          <option value="ETS">ETS</option>
-          <option value="Tools">Tools</option>
-          <option value="Other">Other</option>
-        </select>
+        </div>
 
-        <input
-          id="projectFile"
-          type="file"
-          required
+    </div>
+
+</section>
+
+
+<!-- =========================
+     DOWNLOADS
+========================= -->
+
+<section
+    id="downloads"
+    class="section section-dark"
+>
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    FILE CENTER
+                </span>
+
+                <h2>
+                    Downloads
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="downloadsList"
+            class="downloads-list"
         >
 
-        <button class="btn primary" type="submit">
-          📤 Publish Project
-        </button>
+            <div class="loading">
+                Loading downloads...
+            </div>
 
-        <div id="uploadProgress"></div>
-
-      </form>
+        </div>
 
     </div>
 
-    <div class="admin-projects">
+</section>
 
-      <h3>Published Projects</h3>
 
-      <div id="adminProjects"></div>
+<!-- =========================
+     ABOUT
+========================= -->
+
+<section
+    id="about"
+    class="section"
+>
+
+    <div class="container">
+
+        <div class="about-box">
+
+            <span class="section-label">
+                ABOUT MAH3D
+            </span>
+
+            <h2>
+                MAH3D Studio
+            </h2>
+
+            <p>
+                MAH3D is a personal project platform
+                for software tools, Blender projects,
+                game modifications, 3D assets and
+                downloadable resources.
+            </p>
+
+            <p>
+                New projects can be published through
+                the administrator dashboard.
+            </p>
+
+        </div>
 
     </div>
 
-  </div>
+</section>
+
+
+<!-- =========================
+     CONTACT
+========================= -->
+
+<section
+    id="contact"
+    class="section section-dark"
+>
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    CONTACT
+                </span>
+
+                <h2>
+                    Contact MAH3D
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="contact-grid">
+
+            <a
+                class="contact-card"
+                href="https://wa.me/26138325286"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+
+                <strong>
+                    WhatsApp
+                </strong>
+
+                <span>
+                    +261 38 32 528 26
+                </span>
+
+            </a>
+
+
+            <a
+                class="contact-card"
+                href="mailto:julienmg@gmail.com"
+            >
+
+                <strong>
+                    Email
+                </strong>
+
+                <span>
+                    julienmg@gmail.com
+                </span>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     ADMIN
+========================= -->
+
+<section
+    id="admin"
+    class="section admin-section"
+>
+
+    <div class="container">
+
+        <div class="section-header">
+
+            <div>
+
+                <span class="section-label">
+                    CONTROL PANEL
+                </span>
+
+                <h2>
+                    Admin
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <!-- LOGIN -->
+
+        <div
+            id="loginBox"
+            class="admin-card"
+        >
+
+            <h3>
+                Admin Login
+            </h3>
+
+            <p>
+                Login to publish and manage projects.
+            </p>
+
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        placeholder="Admin email"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        id="password"
+                        type="password"
+                        placeholder="Password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn primary full"
+                >
+                    Login
+                </button>
+
+
+                <div
+                    id="loginMessage"
+                    class="message"
+                ></div>
+
+            </form>
+
+        </div>
+
+
+        <!-- DASHBOARD -->
+
+        <div
+            id="dashboard"
+            class="admin-dashboard hidden"
+        >
+
+            <div class="dashboard-top">
+
+                <div>
+
+                    <span class="section-label">
+                        ADMIN DASHBOARD
+                    </span>
+
+                    <h3>
+                        MAH3D Control Center
+                    </h3>
+
+                </div>
+
+
+                <button
+                    id="logoutBtn"
+                    type="button"
+                    class="btn danger"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+
+            <!-- STATS -->
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span>
+                        Projects
+                    </span>
+
+                    <strong id="projectCount">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <span>
+                        Status
+                    </span>
+
+                    <strong>
+                        ONLINE
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- UPLOAD -->
+
+            <div class="admin-card">
+
+                <h3>
+                    Publish New Project
+                </h3>
+
+                <p>
+                    Upload a file and publish it
+                    publicly on MAH3D.
+                </p>
+
+
+                <form id="uploadForm">
+
+                    <div class="form-group">
+
+                        <label for="projectTitle">
+                            Project Title
+                        </label>
+
+                        <input
+                            id="projectTitle"
+                            type="text"
+                            placeholder="Example: MAH SPD Flash Pro"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="projectDescription">
+                            Description
+                        </label>
+
+                        <textarea
+                            id="projectDescription"
+                            rows="5"
+                            placeholder="Project description..."
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="projectCategory">
+                            Category
+                        </label>
+
+                        <select id="projectCategory">
+
+                            <option value="Blender">
+                                Blender
+                            </option>
+
+                            <option value="BUSSID">
+                                BUSSID
+                            </option>
+
+                            <option value="Tools">
+                                Tools
+                            </option>
+
+                            <option value="Android">
+                                Android
+                            </option>
+
+                            <option value="PC">
+                                PC
+                            </option>
+
+                            <option value="Other">
+                                Other
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="projectFile">
+                            Project File
+                        </label>
+
+                        <input
+                            id="projectFile"
+                            type="file"
+                            required
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn primary"
+                    >
+                        Publish Project
+                    </button>
+
+
+                    <div
+                        id="uploadProgress"
+                        class="message"
+                    ></div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ADMIN PROJECT LIST -->
+
+            <div class="admin-card">
+
+                <h3>
+                    Published Projects
+                </h3>
+
+                <div
+                    id="adminProjects"
+                    class="admin-projects"
+                >
+
+                    <p class="loading">
+                        Loading...
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
 
 </main>
 
-<footer>
-  <p>© 2026 MAH3D — All rights reserved.</p>
-</footer>
 
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
+<!-- =========================
+     PROJECT MODAL
+========================= -->
 
-    <button id="closeModal" class="close">×</button>
+<div
+    id="modal"
+    class="modal hidden"
+>
 
-    <h2 id="modalTitle"></h2>
+    <div class="modal-content">
 
-    <p id="modalCategory"></p>
+        <button
+            id="closeModal"
+            class="modal-close"
+            type="button"
+        >
+            ×
+        </button>
 
-    <p id="modalDescription"></p>
+        <span
+            id="modalCategory"
+            class="category"
+        ></span>
 
-    <a
-      id="modalDownload"
-      class="btn primary"
-      target="_blank"
-    >
-      Open / Download
-    </a>
+        <h2 id="modalTitle">
+            Project
+        </h2>
 
-  </div>
+        <p id="modalDescription">
+            Project description
+        </p>
+
+        <a
+            id="modalDownload"
+            class="btn primary"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Download
+        </a>
+
+    </div>
+
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="footer">
+
+    <div class="container">
+
+        <div class="footer-content">
+
+            <div>
+
+                <strong class="logo">
+                    MAH<span>3D</span>
+                </strong>
+
+                <p>
+                    Projects • Tools • 3D • Downloads
+                </p>
+
+            </div>
+
+
+            <div>
+
+                © 2026 MAH3D.
+                All rights reserved.
+
+            </div>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<!-- =========================
+     SUPABASE
+========================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- =========================
+     MAH3D SCRIPT
+========================= -->
+
 <script src="script.js"></script>
 
 </body>
+
 </html>
+```
+
+### Ataovy izao
+
+Ao amin'ny GitHub:
+
+1. Sokafy `index.html`
+2. **Edit**
+3. Fafao daholo ilay code taloha
+4. Apetaho ilay code etsy ambony
+5. **Commit changes**
+6. Miandrasa 1–2 minitra
+7. Sokafy indray ny site
+8. Tsindrio **Ctrl + Shift + R**
+9. Midira ao amin'ny **Admin**
+10. Ampidiro email + password
+
+Tokony hiseho avy hatrany ny:
+
+**MAH3D Control Center → Projects → Publish New Project**
+
+ary afaka manao upload ianao.
