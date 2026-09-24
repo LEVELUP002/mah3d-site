@@ -1,67 +1,403 @@
-<!doctype html>
-<html lang="mg">
+```html
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>MAH 3D — Premium Tools</title>
-  <meta name="description" content="MAH 3D — logiciels, outils et projets 3D.">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MAH3D | Digital & 3D Studio</title>
+    <meta name="description" content="MAH3D - Digital tools, 3D projects, software and creative services.">
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header class="nav">
-  <a class="logo" href="#home">MAH<span>3D</span></a>
-  <nav>
-    <a href="#home">Home</a>
-    <a href="#tools">Tools</a>
-    <a href="#projects">Projects</a>
-    <a href="#contact">Contact</a>
-  </nav>
-  <button class="menu" aria-label="Menu">☰</button>
-</header>
 
-<main>
-<section id="home" class="hero">
-  <div class="grid"></div>
-  <div class="hero-content">
-    <p class="tag">MAH 3D • DIGITAL WORKSHOP</p>
-    <h1>Build. Create.<br><span>Go Next Level.</span></h1>
-    <p class="lead">Logiciels, outils PC, 3D et projets numériques — réunis amin'ny interface iray.</p>
-    <div class="actions">
-      <a class="btn primary" href="#tools">Hijery Tools</a>
-      <a class="btn ghost" href="#projects">Projects</a>
-    </div>
-  </div>
-</section>
+    <!-- BACKGROUND -->
+    <div class="background-grid"></div>
+    <div class="glow glow-one"></div>
+    <div class="glow glow-two"></div>
 
-<section id="tools" class="section">
-  <div class="section-head">
-    <div><p class="tag">FEATURED</p><h2>MAH Tools</h2></div>
-    <span class="badge">ONLINE</span>
-  </div>
-  <div class="cards">
-    <article class="card"><div class="icon">⚡</div><h3>MAH SPD Flash Pro</h3><p>Interface ho an'ny service sy diagnostic Unisoc/SPD.</p><button onclick="notify('MAH SPD Flash Pro')">View Tool</button></article>
-    <article class="card"><div class="icon">◈</div><h3>MAH 3D Tools</h3><p>Workflow ho an'ny Blender, modelling ary 3D assets.</p><button onclick="notify('MAH 3D Tools')">View Tool</button></article>
-    <article class="card"><div class="icon">▣</div><h3>BUSSID Tools</h3><p>Tools ho an'ny vehicle assets sy conversion workflow.</p><button onclick="notify('BUSSID Tools')">View Tool</button></article>
-  </div>
-</section>
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">
+            <span>MAH</span><b>3D</b>
+        </div>
 
-<section id="projects" class="section alt">
-  <div class="section-head"><div><p class="tag">WORK</p><h2>Projects</h2></div></div>
-  <div class="project">
-    <div class="project-art"><div class="orb"></div><span>MAH 3D</span></div>
-    <div><div class="tag">3D / SOFTWARE</div><h2>Premium Digital Lab</h2><p>Pejy iray hanangonana ny logiciels, downloads, screenshots ary projets rehetra.</p><a class="btn primary" href="#contact">Mifandraisa</a></div>
-  </div>
-</section>
+        <button class="menu-toggle" id="menuToggle">☰</button>
 
-<section id="contact" class="section contact">
-  <p class="tag">CONTACT</p>
-  <h2>Vonona hanomboka?</h2>
-  <p class="lead">Soloy eto ny email-nao na ny rohy Facebook/WhatsApp.</p>
-  <a class="btn primary" href="mailto:contact@example.com">contact@example.com</a>
-</section>
-</main>
+        <nav id="navMenu">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#downloads">Downloads</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
 
-<footer>© <span id="year"></span> MAH 3D. All rights reserved.</footer>
-<script src="script.js"></script>
+
+    <!-- HERO -->
+    <main>
+
+        <section id="home" class="hero">
+
+            <div class="hero-content">
+
+                <div class="status">
+                    <span class="status-dot"></span>
+                    MAH3D ONLINE
+                </div>
+
+                <h1>
+                    CREATE.
+                    <span>BUILD.</span>
+                    INNOVATE.
+                </h1>
+
+                <p class="hero-text">
+                    Welcome to <strong>MAH3D</strong> — a digital space
+                    dedicated to 3D creation, software tools, technology
+                    and creative projects.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="#services" class="btn primary">
+                        Explore Services
+                    </a>
+
+                    <a href="#downloads" class="btn secondary">
+                        Downloads
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="hero-card">
+
+                <div class="card-top">
+                    <span>MAH3D</span>
+                    <span>01</span>
+                </div>
+
+                <div class="cube">
+                    <div class="cube-face front">M</div>
+                    <div class="cube-face back">3</div>
+                    <div class="cube-face right">D</div>
+                    <div class="cube-face left">3</div>
+                    <div class="cube-face top">+</div>
+                    <div class="cube-face bottom">+</div>
+                </div>
+
+                <div class="card-bottom">
+                    <span>DIGITAL STUDIO</span>
+                    <span>2026</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SERVICES -->
+        <section id="services" class="section">
+
+            <div class="section-heading">
+                <span>01 / SERVICES</span>
+                <h2>What We Build</h2>
+                <p>
+                    Digital tools and creative solutions for different projects.
+                </p>
+            </div>
+
+            <div class="service-grid">
+
+                <article class="service-card">
+                    <div class="service-icon">◈</div>
+                    <h3>3D Design</h3>
+                    <p>
+                        3D modeling, Blender projects, vehicle assets,
+                        printable models and custom designs.
+                    </p>
+                    <span class="card-number">01</span>
+                </article>
+
+                <article class="service-card">
+                    <div class="service-icon">⌘</div>
+                    <h3>Software Tools</h3>
+                    <p>
+                        Custom Windows tools, Python applications,
+                        utilities and productivity software.
+                    </p>
+                    <span class="card-number">02</span>
+                </article>
+
+                <article class="service-card">
+                    <div class="service-icon">▣</div>
+                    <h3>Game Assets</h3>
+                    <p>
+                        Vehicle models, game-ready assets,
+                        textures and addon development.
+                    </p>
+                    <span class="card-number">03</span>
+                </article>
+
+                <article class="service-card">
+                    <div class="service-icon">⚙</div>
+                    <h3>Automation</h3>
+                    <p>
+                        Tools designed to simplify repetitive
+                        workflows and technical tasks.
+                    </p>
+                    <span class="card-number">04</span>
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- FEATURE -->
+        <section class="feature-section">
+
+            <div class="feature-box">
+
+                <div>
+                    <span class="small-title">MAH3D WORKSPACE</span>
+
+                    <h2>
+                        Ideas into
+                        <span>Digital Reality.</span>
+                    </h2>
+
+                    <p>
+                        Explore projects, tools and experiments created
+                        by MAH3D.
+                    </p>
+                </div>
+
+                <div class="feature-stat">
+                    <strong>3D</strong>
+                    <span>CREATION</span>
+                </div>
+
+                <div class="feature-stat">
+                    <strong>DEV</strong>
+                    <span>TOOLS</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DOWNLOADS -->
+        <section id="downloads" class="section">
+
+            <div class="section-heading">
+                <span>02 / DOWNLOADS</span>
+                <h2>MAH3D Tools</h2>
+                <p>
+                    Download section for MAH3D projects and software.
+                </p>
+            </div>
+
+            <div class="download-list">
+
+                <div class="download-item">
+
+                    <div class="download-icon">⬢</div>
+
+                    <div class="download-info">
+                        <h3>MAH3D Tool</h3>
+                        <p>Official MAH3D utility</p>
+                    </div>
+
+                    <!-- Ampidiro eto ny lien download rehefa manana fichier ianao -->
+                    <a href="#" class="download-btn"
+                       onclick="comingSoon(event)">
+                        DOWNLOAD
+                    </a>
+
+                </div>
+
+
+                <div class="download-item">
+
+                    <div class="download-icon">◆</div>
+
+                    <div class="download-info">
+                        <h3>MAH3D Blender Tools</h3>
+                        <p>3D workflow utilities</p>
+                    </div>
+
+                    <a href="#" class="download-btn"
+                       onclick="comingSoon(event)">
+                        DOWNLOAD
+                    </a>
+
+                </div>
+
+
+                <div class="download-item">
+
+                    <div class="download-icon">◇</div>
+
+                    <div class="download-info">
+                        <h3>MAH3D Projects</h3>
+                        <p>Experimental projects</p>
+                    </div>
+
+                    <a href="#" class="download-btn"
+                       onclick="comingSoon(event)">
+                        VIEW
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ABOUT -->
+        <section id="about" class="section about">
+
+            <div class="about-content">
+
+                <div class="section-heading left">
+                    <span>03 / ABOUT</span>
+
+                    <h2>
+                        Welcome to
+                        <span>MAH3D.</span>
+                    </h2>
+                </div>
+
+                <p>
+                    MAH3D is a personal digital studio focused on
+                    3D design, software development, technical tools
+                    and creative digital projects.
+                </p>
+
+                <p>
+                    This website is used to present MAH3D projects,
+                    tools, experiments and future releases.
+                </p>
+
+            </div>
+
+            <div class="about-box">
+                <div>
+                    <strong>MAH</strong>
+                    <span>3D</span>
+                </div>
+
+                <p>CREATE • BUILD • INNOVATE</p>
+            </div>
+
+        </section>
+
+
+        <!-- CONTACT -->
+        <section id="contact" class="section contact">
+
+            <div class="section-heading">
+                <span>04 / CONTACT</span>
+                <h2>Let's Connect</h2>
+                <p>
+                    Mila hifandray amin'ny MAH3D?
+                </p>
+            </div>
+
+            <div class="contact-container">
+
+                <div class="contact-card">
+
+                    <div class="contact-icon">◉</div>
+
+                    <h3>WhatsApp</h3>
+
+                    <p>
+                        Contact direct via WhatsApp.
+                    </p>
+
+                    <a
+                        href="https://wa.me/26138325286"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="contact-btn whatsapp"
+                    >
+                        Open WhatsApp
+                    </a>
+
+                </div>
+
+
+                <div class="contact-card">
+
+                    <div class="contact-icon">✉</div>
+
+                    <h3>Email</h3>
+
+                    <p>
+                        Send a message by email.
+                    </p>
+
+                    <a
+                        href="mailto:julienmg3@gmail.com"
+                        class="contact-btn"
+                    >
+                        Send Email
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="contact-details">
+
+                <div>
+                    <span>PHONE</span>
+                    <strong>+261 38 32 528 86</strong>
+                </div>
+
+                <div>
+                    <span>EMAIL</span>
+                    <strong>julienmg3@gmail.com</strong>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <div class="footer-logo">
+            MAH<span>3D</span>
+        </div>
+
+        <p>
+            © 2026 MAH3D. All rights reserved.
+        </p>
+
+        <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#contact">Contact</a>
+        </div>
+
+    </footer>
+
+
+    <!-- BACK TO TOP -->
+    <button id="topButton" class="top-button">↑</button>
+
+    <script src="script.js"></script>
+
 </body>
 </html>
+```
