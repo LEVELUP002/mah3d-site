@@ -1,184 +1,19 @@
--- =====================================================
--- MAH3D PROJECTS + RLS + STORAGE
--- =====================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAH3D</title>
+</head>
 
-create table if not exists public.projects (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  description text default '',
-  category text default 'Other',
-  file_url text not null,
-  file_name text not null,
-  owner_id uuid references auth.users(id) on delete cascade,
-  created_at timestamptz not null default now()
-);
+<body>
 
-alter table public.projects enable row level security;
+    <h1>MAH3D</h1>
 
+    <p>Standards Mode OK</p>
 
--- -----------------------------------------------------
--- PUBLIC READ
--- -----------------------------------------------------
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./script.js"></script>
 
-drop policy if exists "Public can read projects"
-on public.projects;
-
-create policy "Public can read projects"
-on public.projects
-for select
-to anon, authenticated
-using (true);
-
-
--- -----------------------------------------------------
--- AUTHENTICATED USERS CAN INSERT
--- -----------------------------------------------------
-
-drop policy if exists "Users can insert own projects"
-on public.projects;
-
-create policy "Users can insert own projects"
-on public.projects
-for insert
-to authenticated
-with check (
-  owner_id = auth.uid()
-);
-
-
--- -----------------------------------------------------
--- OWNER CAN DELETE
--- -----------------------------------------------------
-
-drop policy if exists "Users can delete own projects"
-on public.projects;
-
-create policy "Users can delete own projects"
-on public.projects
-for delete
-to authenticated
-using (
-  owner_id = auth.uid()
-);
-
-
--- -----------------------------------------------------
--- OWNER CAN UPDATE
--- -----------------------------------------------------
-
-drop policy if exists "Users can update own projects"
-on public.projects;
-
-create policy "Users can update own projects"
-on public.projects
-for update
-to authenticated
-using (
-  owner_id = auth.uid()
-)
-with check (
-  owner_id = auth.uid()
-);
-
-
--- -----------------------------------------------------
--- GRANTS
--- -----------------------------------------------------
-
-grant select on public.projects
-to anon, authenticated;
-
-grant insert, update, delete
-on public.projects
-to authenticated;
-
-
--- =====================================================
--- STORAGE BUCKET
--- =====================================================
-
-insert into storage.buckets
-  (id, name, public)
-values
-  ('projects', 'projects', true)
-on conflict (id)
-do update set public = true;
-
-
--- -----------------------------------------------------
--- STORAGE READ
--- Public download because bucket is public
--- -----------------------------------------------------
-
-drop policy if exists "Public can read project files"
-on storage.objects;
-
-create policy "Public can read project files"
-on storage.objects
-for select
-to anon, authenticated
-using (
-  bucket_id = 'projects'
-);
-
-
--- -----------------------------------------------------
--- STORAGE UPLOAD
--- User may upload only inside own UUID folder
--- Example:
--- USER_UUID/file.zip
--- -----------------------------------------------------
-
-drop policy if exists "Users can upload own project files"
-on storage.objects;
-
-create policy "Users can upload own project files"
-on storage.objects
-for insert
-to authenticated
-with check (
-  bucket_id = 'projects'
-  and (storage.foldername(name))[1] =
-      auth.uid()::text
-);
-
-
--- -----------------------------------------------------
--- STORAGE UPDATE
--- -----------------------------------------------------
-
-drop policy if exists "Users can update own project files"
-on storage.objects;
-
-create policy "Users can update own project files"
-on storage.objects
-for update
-to authenticated
-using (
-  bucket_id = 'projects'
-  and (storage.foldername(name))[1] =
-      auth.uid()::text
-)
-with check (
-  bucket_id = 'projects'
-  and (storage.foldername(name))[1] =
-      auth.uid()::text
-);
-
-
--- -----------------------------------------------------
--- STORAGE DELETE
--- -----------------------------------------------------
-
-drop policy if exists "Users can delete own project files"
-on storage.objects;
-
-create policy "Users can delete own project files"
-on storage.objects
-for delete
-to authenticated
-using (
-  bucket_id = 'projects'
-  and (storage.foldername(name))[1] =
-      auth.uid()::text
-);
+</body>
+</html>
