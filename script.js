@@ -1,1680 +1,1632 @@
-"use strict";
-
-/*
-========================================================
- MAH3D SUPABASE ADMIN
- Auth + Projects + Upload + Delete + RLS
-========================================================
-
-IMPORTANT:
-Use ONLY your Supabase PUBLISHABLE key here.
-
-DO NOT put sb_secret_... in this file.
-========================================================
-*/
-
-
-// ======================================================
-// SUPABASE CONFIG
-// ======================================================
-
-const SUPABASE_URL =
-  "https://drfxgjvvldccxbccgiud.supabase.co";
-
-/*
-Paste the CURRENT Publishable key from:
-
-Supabase Dashboard
-→ Project Settings
-→ API
-→ Publishable key
-
-Do NOT paste sb_secret_...
-*/
-
-const SUPABASE_KEY =
-  "sb_publishable_iaxxz6gFjhMdR5tTZGZMOg_CiSibohE";
-
-
-if (!window.supabase) {
-
-  console.error(
-    "Supabase JS library was not loaded."
-  );
-
-  alert(
-    "Supabase library not loaded. Check index.html."
-  );
-
-  throw new Error(
-    "Supabase JS library missing."
-  );
-}
-
-
-if (
-  !SUPABASE_KEY ||
-  SUPABASE_KEY ===
-    "sb_secret_zpZpYBLTpU9GeppyUrUWLw_UfVCvBZu"
-) {
-
-  console.error(
-    "Supabase Publishable key is missing."
-  );
-
-  alert(
-    "Supabase Publishable key is missing in script.js"
-  );
-
-  throw new Error(
-    "Missing Supabase Publishable key."
-  );
-}
-
-
-// Create Supabase client
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-// ======================================================
-// GLOBAL STATE
-// ======================================================
-
-let currentUser = null;
-let allProjects = [];
-
-
-// ======================================================
-// HELPERS
-// ======================================================
-
-const $ = (id) =>
-  document.getElementById(id);
-
-
-function escapeHTML(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-
-function escapeAttribute(value) {
-
-  return escapeHTML(value);
-}
-
-
-function showMessage(
-  element,
-  message,
-  type = "success"
-) {
-
-  if (!element) return;
-
-  element.textContent = message;
-
-  element.className =
-    "message show " + type;
-}
-
-
-function clearMessage(element) {
-
-  if (!element) return;
-
-  element.textContent = "";
-
-  element.className =
-    "message";
-}
-
-
-// ======================================================
-// CONNECTION STATUS
-// ======================================================
-
-function setConnectionStatus(
-  online,
-  text
-) {
-
-  const dot =
-    $("statusDot");
-
-  const status =
-    $("connectionStatus");
-
-  if (dot) {
-
-    dot.classList.toggle(
-      "online",
-      online
-    );
-  }
-
-  if (status) {
-
-    status.textContent =
-      text;
-  }
-}
-
-
-// ======================================================
-// INITIALIZATION
-// ======================================================
-
-document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-
-    console.log(
-      "================================"
-    );
-
-    console.log(
-      "MAH3D SUPABASE ADMIN STARTING"
-    );
-
-    console.log(
-      "================================"
-    );
-
-    setupLogin();
-
-    setupLogout();
-
-    setupUpload();
-
-    setupSearch();
-
-    setupModal();
-
-    await checkSession();
-
-    await loadProjects();
-
-  }
-);
-
-
-// ======================================================
-// AUTH SESSION
-// ======================================================
-
-async function checkSession() {
-
-  try {
-
-    setConnectionStatus(
-      true,
-      "Connecting..."
-    );
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getSession();
-
-
-    if (error) {
-
-      console.error(
-        "SESSION ERROR:",
-        error
-      );
-
-      setConnectionStatus(
-        false,
-        "Auth error"
-      );
-
-      return;
-    }
-
-
-    currentUser =
-      data?.session?.user || null;
-
-
-    console.log(
-      "Current user:",
-      currentUser
-    );
-
-
-    updateAuthUI();
-
-
-    if (currentUser) {
-
-      setConnectionStatus(
-        true,
-        "Online"
-      );
-
-    } else {
-
-      setConnectionStatus(
-        true,
-        "Ready"
-      );
-    }
-
-
-  } catch (error) {
-
-    console.error(
-      "SESSION EXCEPTION:",
-      error
-    );
-
-    setConnectionStatus(
-      false,
-      "Connection error"
-    );
-
-  }
-}
-
-
-// ======================================================
-// AUTH STATE CHANGE
-// ======================================================
-
-supabaseClient.auth.onAuthStateChange(
-  (event, session) => {
-
-    console.log(
-      "AUTH EVENT:",
-      event
-    );
-
-
-    currentUser =
-      session?.user || null;
-
-
-    updateAuthUI();
-
-
-    if (currentUser) {
-
-      setConnectionStatus(
-        true,
-        "Online"
-      );
-
-    } else {
-
-      setConnectionStatus(
-        true,
-        "Ready"
-      );
-    }
-
-  }
-);
-
-
-// ======================================================
-// UPDATE AUTH UI
-// ======================================================
-
-function updateAuthUI() {
-
-  const loginPanel =
-    $("loginPanel");
-
-  const dashboard =
-    $("dashboard");
-
-
-  if (currentUser) {
-
-    if (loginPanel) {
-
-      loginPanel.style.display =
-        "none";
-    }
-
-
-    if (dashboard) {
-
-      dashboard.style.display =
-        "block";
-    }
-
-
-    if ($("adminEmail")) {
-
-      $("adminEmail").textContent =
-        currentUser.email || "";
-    }
-
-
-    renderAdminProjects();
-
-
-  } else {
-
-    if (loginPanel) {
-
-      loginPanel.style.display =
-        "block";
-    }
-
-
-    if (dashboard) {
-
-      dashboard.style.display =
-        "none";
-    }
-
-  }
-}
-
-
-// ======================================================
-// LOGIN
-// ======================================================
-
-function setupLogin() {
-
-  const form =
-    $("loginForm");
-
-  if (!form) {
-
-    console.error(
-      "loginForm not found."
-    );
-
-    return;
-  }
-
-
-  form.addEventListener(
-    "submit",
-    async (event) => {
-
-      event.preventDefault();
-
-
-      const email =
-        $("email")?.value
-          .trim();
-
-      const password =
-        $("password")?.value || "";
-
-
-      const message =
-        $("loginMessage");
-
-      const button =
-        $("loginBtn");
-
-
-      if (!email || !password) {
-
-        showMessage(
-          message,
-          "❌ Ampidiro email sy password.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "Logging in...";
-
-
-      showMessage(
-        message,
-        "⏳ Connecting to Supabase...",
-        "success"
-      );
-
-
-      try {
-
-        console.log(
-          "LOGIN START:",
-          email
-        );
-
-
-        const {
-          data,
-          error
-        } =
-          await supabaseClient.auth
-            .signInWithPassword({
-              email,
-              password
-            });
-
-
-        if (error) {
-
-          console.error(
-            "LOGIN ERROR:",
-            error
-          );
-
-
-          showMessage(
-            message,
-            "❌ Login failed: " +
-              error.message,
-            "error"
-          );
-
-
-          return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="MAH3D - Premium 3D Models, Mods and Digital Projects"
+    >
+
+    <title>MAH3D — 3D Project Library</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
+        :root {
+            --bg: #05070b;
+            --bg2: #080d15;
+            --panel: rgba(13, 19, 30, 0.88);
+            --panel2: rgba(17, 25, 39, 0.95);
 
-        currentUser =
-          data.user;
+            --line: rgba(255,255,255,0.08);
+            --line2: rgba(0, 229, 255, 0.22);
 
+            --text: #f3f8ff;
+            --muted: #8492a8;
 
-        console.log(
-          "LOGIN SUCCESS:",
-          currentUser
-        );
+            --cyan: #00e5ff;
+            --blue: #1677ff;
+            --green: #27e68a;
+            --gold: #ffc857;
+            --red: #ff4d6d;
 
-
-        showMessage(
-          message,
-          "✅ TAFAIDITRA: " +
-            (currentUser.email || ""),
-          "success"
-        );
-
-
-        updateAuthUI();
-
-        await loadProjects();
-
-
-      } catch (error) {
-
-        console.error(
-          "LOGIN EXCEPTION:",
-          error
-        );
-
-
-        showMessage(
-          message,
-          "❌ " +
-            (error.message ||
-              "Unknown login error"),
-          "error"
-        );
-
-      } finally {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Login";
-
-      }
-
-    }
-  );
-}
-
-
-// ======================================================
-// LOGOUT
-// ======================================================
-
-function setupLogout() {
-
-  const button =
-    $("logoutBtn");
-
-  if (!button) return;
-
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "Logging out...";
-
-
-      try {
-
-        const {
-          error
-        } =
-          await supabaseClient.auth
-            .signOut();
-
-
-        if (error) {
-
-          throw error;
+            --radius: 18px;
         }
 
-
-        currentUser =
-          null;
-
-
-        updateAuthUI();
-
-
-        console.log(
-          "LOGGED OUT"
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "LOGOUT ERROR:",
-          error
-        );
-
-
-        alert(
-          "Logout failed: " +
-            error.message
-        );
-
-
-      } finally {
-
-        button.disabled =
-          false;
-
-        button.textContent =
-          "Logout";
-
-      }
-
-    }
-  );
-}
-
-
-// ======================================================
-// LOAD PROJECTS
-// ======================================================
-
-async function loadProjects() {
-
-  console.log(
-    "Loading projects..."
-  );
-
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("projects")
-        .select("*")
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        );
-
-
-    if (error) {
-
-      throw error;
-    }
-
-
-    allProjects =
-      data || [];
-
-
-    console.log(
-      "Projects loaded:",
-      allProjects
-    );
-
-
-    if ($("databaseStatus")) {
-
-      $("databaseStatus").textContent =
-        "OK";
-    }
-
-
-    renderProjects(
-      allProjects
-    );
-
-    renderDownloads();
-
-    renderAdminProjects();
-
-
-  } catch (error) {
-
-    console.error(
-      "PROJECT LOAD ERROR:",
-      error
-    );
-
-
-    if ($("databaseStatus")) {
-
-      $("databaseStatus").textContent =
-        "ERROR";
-    }
-
-
-    const grid =
-      $("projectsGrid");
-
-
-    if (grid) {
-
-      grid.innerHTML = `
-        <div class="empty">
-          ❌ Database error:
-          ${escapeHTML(error.message)}
-        </div>
-      `;
-    }
-
-  }
-}
-
-
-// ======================================================
-// RENDER PUBLIC PROJECTS
-// ======================================================
-
-function renderProjects(
-  projects
-) {
-
-  const grid =
-    $("projectsGrid");
-
-  if (!grid) return;
-
-
-  if (!projects.length) {
-
-    grid.innerHTML = `
-      <div class="empty">
-        No projects published yet.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  grid.innerHTML =
-    projects.map(
-      (project) => {
-
-        const id =
-          escapeAttribute(
-            project.id
-          );
-
-
-        return `
-          <article class="project-card">
-
-            <span class="category">
-              ${escapeHTML(
-                project.category ||
-                "Other"
-              )}
-            </span>
-
-            <h3>
-              ${escapeHTML(
-                project.title
-              )}
-            </h3>
-
-            <p>
-              ${escapeHTML(
-                project.description ||
-                "No description."
-              )}
-            </p>
-
-            <button
-              class="btn primary"
-              onclick="openProject('${id}')"
-            >
-              View Project
-            </button>
-
-          </article>
-        `;
-      }
-    )
-    .join("");
-}
-
-
-// ======================================================
-// DOWNLOADS
-// ======================================================
-
-function renderDownloads() {
-
-  const list =
-    $("downloadsList");
-
-  if (!list) return;
-
-
-  if (!allProjects.length) {
-
-    list.innerHTML = `
-      <div class="empty">
-        No downloads available.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  list.innerHTML =
-    allProjects.map(
-      (project) => {
-
-        return `
-          <div class="download-item">
-
-            <div>
-
-              <strong>
-                ${escapeHTML(
-                  project.title
-                )}
-              </strong>
-
-              <small>
-                ${escapeHTML(
-                  project.file_name ||
-                  "Project file"
-                )}
-              </small>
-
-            </div>
-
-            <a
-              class="btn primary"
-              href="${escapeAttribute(
-                project.file_url
-              )}"
-              target="_blank"
-              rel="noopener"
-            >
-              Download
-            </a>
-
-          </div>
-        `;
-
-      }
-    )
-    .join("");
-}
-
-
-// ======================================================
-// ADMIN PROJECT LIST
-// ======================================================
-
-function renderAdminProjects() {
-
-  const box =
-    $("adminProjects");
-
-  if (!box) return;
-
-
-  if ($("projectCount")) {
-
-    $("projectCount").textContent =
-      allProjects.length;
-  }
-
-
-  if (!currentUser) {
-
-    box.innerHTML = "";
-
-    return;
-  }
-
-
-  if (!allProjects.length) {
-
-    box.innerHTML = `
-      <div class="empty">
-        Nothing to manage.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  box.innerHTML =
-    allProjects.map(
-      (project) => {
-
-        return `
-          <div class="admin-project">
-
-            <div>
-
-              <strong>
-                ${escapeHTML(
-                  project.title
-                )}
-              </strong>
-
-              <small>
-                ${escapeHTML(
-                  project.category ||
-                  "Other"
-                )}
-              </small>
-
-            </div>
-
-            <button
-              class="btn danger"
-              onclick="deleteProject('${escapeAttribute(
-                project.id
-              )}')"
-            >
-              Delete
-            </button>
-
-          </div>
-        `;
-
-      }
-    )
-    .join("");
-}
-
-
-// ======================================================
-// UPLOAD
-// ======================================================
-
-function setupUpload() {
-
-  const form =
-    $("uploadForm");
-
-  if (!form) return;
-
-
-  form.addEventListener(
-    "submit",
-    async (event) => {
-
-      event.preventDefault();
-
-
-      const progress =
-        $("uploadProgress");
-
-      const button =
-        $("uploadBtn");
-
-
-      if (!currentUser) {
-
-        showMessage(
-          progress,
-          "❌ Login required.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      const title =
-        $("projectTitle")
-          ?.value
-          .trim();
-
-
-      const description =
-        $("projectDescription")
-          ?.value
-          .trim() || "";
-
-
-      const category =
-        $("projectCategory")
-          ?.value ||
-        "Other";
-
-
-      const file =
-        $("projectFile")
-          ?.files?.[0];
-
-
-      if (!title) {
-
-        showMessage(
-          progress,
-          "❌ Ampidiro ny titre.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      if (!file) {
-
-        showMessage(
-          progress,
-          "❌ Misafidiana fichier.",
-          "error"
-        );
-
-        return;
-      }
-
-
-      button.disabled =
-        true;
-
-      button.textContent =
-        "Uploading...";
-
-
-      let storagePath =
-        null;
-
-
-      try {
-
-        // ==========================================
-        // STEP 1: STORAGE PATH
-        // ==========================================
-
-        showMessage(
-          progress,
-          "📤 Uploading file...",
-          "success"
-        );
-
-
-        const safeName =
-          file.name
-            .replace(
-              /[^a-zA-Z0-9._-]/g,
-              "_"
-            );
-
-
-        storagePath =
-          currentUser.id +
-          "/" +
-          Date.now() +
-          "_" +
-          safeName;
-
-
-        console.log(
-          "Storage path:",
-          storagePath
-        );
-
-
-        // ==========================================
-        // STEP 2: UPLOAD STORAGE
-        // ==========================================
-
-        const {
-          error:
-            uploadError
-        } =
-          await supabaseClient
-            .storage
-            .from("projects")
-            .upload(
-              storagePath,
-              file,
-              {
-                cacheControl:
-                  "31536000",
-
-                upsert:
-                  false,
-
-                contentType:
-                  file.type ||
-                  "application/octet-stream"
-              }
-            );
-
-
-        if (uploadError) {
-
-          throw new Error(
-            "Storage upload failed: " +
-            uploadError.message
-          );
+        html {
+            scroll-behavior: smooth;
         }
 
+        body {
+            min-height: 100vh;
+            font-family:
+                Inter,
+                Segoe UI,
+                Arial,
+                sans-serif;
 
-        // ==========================================
-        // STEP 3: PUBLIC URL
-        // ==========================================
+            color: var(--text);
 
-        showMessage(
-          progress,
-          "🔗 Creating download URL...",
-          "success"
-        );
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(0,229,255,0.10),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 85% 15%,
+                    rgba(22,119,255,0.10),
+                    transparent 28%
+                ),
+                linear-gradient(
+                    180deg,
+                    #05070b 0%,
+                    #070b12 45%,
+                    #040609 100%
+                );
 
-
-        const {
-          data:
-            urlData
-        } =
-          supabaseClient
-            .storage
-            .from("projects")
-            .getPublicUrl(
-              storagePath
-            );
-
-
-        const fileUrl =
-          urlData?.publicUrl;
-
-
-        if (!fileUrl) {
-
-          throw new Error(
-            "Could not create public URL."
-          );
+            overflow-x: hidden;
         }
 
-
-        // ==========================================
-        // STEP 4: DATABASE
-        // ==========================================
-
-        showMessage(
-          progress,
-          "💾 Saving project...",
-          "success"
-        );
-
-
-        const {
-          data:
-            inserted,
-          error:
-            dbError
-        } =
-          await supabaseClient
-            .from("projects")
-            .insert({
-
-              title:
-                title,
-
-              description:
-                description,
-
-              category:
-                category,
-
-              file_url:
-                fileUrl,
-
-              file_name:
-                file.name,
-
-              owner_id:
-                currentUser.id
-
-            })
-            .select()
-            .single();
-
-
-        if (dbError) {
-
-          // Remove uploaded file
-          // if DB insert failed.
-
-          await supabaseClient
-            .storage
-            .from("projects")
-            .remove([
-              storagePath
-            ]);
-
-
-          throw new Error(
-            "Database insert failed: " +
-            dbError.message
-          );
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
         }
 
+        button {
+            cursor: pointer;
+        }
 
-        // ==========================================
-        // STEP 5: UPDATE UI
-        // ==========================================
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
 
-        allProjects.unshift(
-          inserted
-        );
+        /* =====================================================
+           TOP BAR
+        ===================================================== */
 
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
 
-        renderProjects(
-          allProjects
-        );
+            height: 72px;
 
-        renderDownloads();
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-        renderAdminProjects();
+            padding: 0 6%;
 
+            background: rgba(5,7,11,0.78);
+            backdrop-filter: blur(18px);
 
-        form.reset();
+            border-bottom: 1px solid var(--line);
+        }
 
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
 
-        showMessage(
-          progress,
-          "✅ Published successfully!",
-          "success"
-        );
+            font-size: 21px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
 
+        .brand-mark {
+            width: 42px;
+            height: 42px;
 
-        console.log(
-          "PROJECT CREATED:",
-          inserted
-        );
+            display: grid;
+            place-items: center;
 
+            border-radius: 12px;
 
-      } catch (error) {
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--cyan),
+                    var(--blue)
+                );
 
-        console.error(
-          "PUBLISH ERROR:",
-          error
-        );
+            color: #001014;
 
+            font-weight: 1000;
 
-        showMessage(
-          progress,
-          "❌ " +
-            error.message,
-          "error"
-        );
+            box-shadow:
+                0 0 25px rgba(0,229,255,0.25);
+        }
 
+        .brand span {
+            background:
+                linear-gradient(
+                    90deg,
+                    #fff,
+                    var(--cyan),
+                    #fff
+                );
 
-      } finally {
+            background-size: 220% auto;
 
-        button.disabled =
-          false;
+            -webkit-background-clip: text;
+            background-clip: text;
 
-        button.textContent =
-          "Publish Project";
+            color: transparent;
 
-      }
+            animation: shine 4s linear infinite;
+        }
 
-    }
-  );
-}
+        @keyframes shine {
+            to {
+                background-position: 220% center;
+            }
+        }
 
+        .topnav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-// ======================================================
-// DELETE PROJECT
-// ======================================================
+        .nav-btn {
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,0.03);
 
-window.deleteProject =
-  async function(id) {
+            color: #dce7f5;
 
-    if (!currentUser) {
+            padding: 10px 15px;
 
-      alert(
-        "Login required."
-      );
+            border-radius: 10px;
 
-      return;
-    }
+            transition: 0.2s;
+        }
 
+        .nav-btn:hover {
+            border-color: var(--line2);
+            background: rgba(0,229,255,0.07);
+            color: white;
+        }
 
-    const project =
-      allProjects.find(
-        (item) =>
-          item.id === id
-      );
+        /* =====================================================
+           HERO
+        ===================================================== */
 
+        .hero {
+            width: min(1180px, 92%);
+            margin: 0 auto;
 
-    if (!project) {
+            padding: 90px 0 60px;
 
-      alert(
-        "Project not found."
-      );
+            text-align: center;
+        }
 
-      return;
-    }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
 
+            padding: 8px 13px;
 
-    const confirmed =
-      confirm(
-        'Delete "' +
-        project.title +
-        '"?'
-      );
+            border: 1px solid rgba(0,229,255,0.18);
 
+            border-radius: 999px;
 
-    if (!confirmed) return;
+            background: rgba(0,229,255,0.05);
 
+            color: var(--cyan);
 
-    try {
+            font-size: 12px;
+            font-weight: 800;
 
-      console.log(
-        "Deleting project:",
-        project
-      );
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
+        .hero h1 {
+            margin-top: 22px;
 
-      // ==========================================
-      // DATABASE DELETE
-      // ==========================================
+            font-size: clamp(42px, 8vw, 92px);
 
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("projects")
-          .delete()
-          .eq(
-            "id",
-            id
-          )
-          .eq(
-            "owner_id",
-            currentUser.id
-          );
+            line-height: 0.95;
 
+            font-weight: 1000;
 
-      if (error) {
+            letter-spacing: -4px;
+        }
 
-        throw error;
-      }
+        .hero h1 strong {
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--cyan),
+                    #fff,
+                    var(--blue)
+                );
 
+            -webkit-background-clip: text;
+            background-clip: text;
 
-      // ==========================================
-      // REMOVE STORAGE FILE
-      // ==========================================
+            color: transparent;
+        }
 
-      /*
-       * Because old records may not contain
-       * storage_path, we reconstruct it only when
-       * the file URL belongs to our bucket.
-       */
+        .hero p {
+            max-width: 700px;
 
-      if (
-        project.file_url &&
-        project.file_name
-      ) {
+            margin: 25px auto 0;
 
-        const url =
-          project.file_url;
+            color: var(--muted);
 
+            font-size: 17px;
+            line-height: 1.7;
+        }
 
-        const marker =
-          "/storage/v1/object/public/projects/";
+        /* =====================================================
+           SEARCH
+        ===================================================== */
 
+        .library {
+            width: min(1180px, 92%);
+            margin: auto;
+        }
 
-        const index =
-          url.indexOf(marker);
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr 200px 160px;
+            gap: 12px;
 
+            margin-bottom: 25px;
+        }
 
-        if (index !== -1) {
+        .input,
+        .select,
+        .textarea {
+            width: 100%;
 
-          const path =
-            decodeURIComponent(
-              url.substring(
-                index +
-                marker.length
-              )
-            );
+            border: 1px solid var(--line);
 
+            outline: none;
 
-          if (path) {
+            border-radius: 12px;
 
-            const {
-              error:
-                storageError
-            } =
-              await supabaseClient
-                .storage
-                .from("projects")
-                .remove([
-                  path
-                ]);
+            background: rgba(255,255,255,0.035);
 
+            color: white;
 
-            if (storageError) {
+            padding: 13px 15px;
 
-              console.warn(
-                "Storage delete warning:",
-                storageError
-              );
+            transition: 0.2s;
+        }
 
+        .input:focus,
+        .select:focus,
+        .textarea:focus {
+            border-color: rgba(0,229,255,0.45);
+
+            box-shadow:
+                0 0 0 3px rgba(0,229,255,0.06);
+        }
+
+        .select option {
+            background: #101722;
+            color: white;
+        }
+
+        /* =====================================================
+           PROJECT GRID
+        ===================================================== */
+
+        .projects-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fill,
+                    minmax(260px, 1fr)
+                );
+
+            gap: 18px;
+
+            padding-bottom: 80px;
+        }
+
+        .project-card {
+            position: relative;
+
+            min-height: 270px;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: var(--radius);
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(17,25,39,0.95),
+                    rgba(8,12,18,0.96)
+                );
+
+            box-shadow:
+                0 18px 60px rgba(0,0,0,0.25);
+
+            transition:
+                transform 0.25s,
+                border-color 0.25s,
+                box-shadow 0.25s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+
+            border-color:
+                rgba(0,229,255,0.28);
+
+            box-shadow:
+                0 20px 70px
+                rgba(0,0,0,0.45),
+                0 0 30px
+                rgba(0,229,255,0.05);
+        }
+
+        .card-top {
+            min-height: 115px;
+
+            padding: 20px;
+
+            background:
+                radial-gradient(
+                    circle at 80% 20%,
+                    rgba(0,229,255,0.10),
+                    transparent 35%
+                );
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+
+            padding: 6px 9px;
+
+            border-radius: 999px;
+
+            font-size: 10px;
+            font-weight: 900;
+
+            letter-spacing: 0.7px;
+
+            text-transform: uppercase;
+        }
+
+        .badge-category {
+            background: rgba(255,255,255,0.06);
+            color: #b9c6d8;
+        }
+
+        .badge-free {
+            background: rgba(39,230,138,0.12);
+            color: var(--green);
+
+            border: 1px solid
+                rgba(39,230,138,0.18);
+        }
+
+        .badge-paid {
+            background: rgba(255,200,87,0.12);
+            color: var(--gold);
+
+            border: 1px solid
+                rgba(255,200,87,0.20);
+        }
+
+        .project-card h3 {
+            font-size: 20px;
+            line-height: 1.2;
+        }
+
+        .card-body {
+            flex: 1;
+
+            padding: 0 20px 20px;
+        }
+
+        .project-description {
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.6;
+
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+
+            overflow: hidden;
+        }
+
+        .price {
+            margin-top: 14px;
+
+            font-size: 21px;
+            font-weight: 1000;
+        }
+
+        .price.free {
+            color: var(--green);
+        }
+
+        .price.paid {
+            color: var(--gold);
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 8px;
+
+            padding: 15px 20px;
+
+            border-top: 1px solid var(--line);
+        }
+
+        .btn {
+            border: 0;
+
+            border-radius: 10px;
+
+            padding: 11px 14px;
+
+            font-weight: 800;
+
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            flex: 1;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--cyan),
+                    var(--blue)
+                );
+
+            color: #001014;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 8px 25px
+                rgba(0,229,255,0.18);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: white;
+
+            border: 1px solid var(--line);
+        }
+
+        .btn-danger {
+            background: rgba(255,77,109,0.10);
+            color: #ff7189;
+
+            border: 1px solid
+                rgba(255,77,109,0.18);
+        }
+
+        /* =====================================================
+           EMPTY
+        ===================================================== */
+
+        .empty {
+            grid-column: 1 / -1;
+
+            padding: 70px 20px;
+
+            text-align: center;
+
+            border: 1px dashed var(--line);
+
+            border-radius: var(--radius);
+
+            color: var(--muted);
+        }
+
+        .empty-icon {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        /* =====================================================
+           ADMIN
+        ===================================================== */
+
+        .admin-section {
+            width: min(1180px, 92%);
+
+            margin: 30px auto 100px;
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+        }
+
+        .section-title h2 {
+            font-size: 27px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .admin-card {
+            border:
+                1px solid var(--line);
+
+            border-radius: var(--radius);
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(13,19,30,0.92),
+                    rgba(8,12,18,0.96)
+                );
+
+            padding: 25px;
+
+            box-shadow:
+                0 20px 80px
+                rgba(0,0,0,0.25);
+        }
+
+        #loginPanel {
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .admin-user {
+            color: var(--cyan);
+            font-size: 13px;
+        }
+
+        .form-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #aebbd0;
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .upload-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin-top: 5px;
+        }
+
+        .progress {
+            flex: 1;
+
+            height: 8px;
+
+            overflow: hidden;
+
+            border-radius: 999px;
+
+            background: rgba(255,255,255,0.06);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--cyan),
+                    var(--blue)
+                );
+
+            transition: width 0.2s;
+        }
+
+        .status {
+            margin-top: 12px;
+
+            min-height: 20px;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        .status.success {
+            color: var(--green);
+        }
+
+        .status.error {
+            color: #ff7189;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =====================================================
+           STATS
+        ===================================================== */
+
+        .stats {
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 20px;
+        }
+
+        .stat {
+            padding: 17px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 14px;
+
+            background:
+                rgba(255,255,255,0.025);
+        }
+
+        .stat-label {
+            color: var(--muted);
+
+            font-size: 11px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.7px;
+        }
+
+        .stat-value {
+            margin-top: 7px;
+
+            font-size: 24px;
+
+            font-weight: 1000;
+        }
+
+        .dot {
+            display: inline-block;
+
+            width: 8px;
+            height: 8px;
+
+            margin-right: 6px;
+
+            border-radius: 50%;
+
+            background: var(--green);
+
+            box-shadow:
+                0 0 10px
+                rgba(39,230,138,0.5);
+        }
+
+        /* =====================================================
+           MODAL
+        ===================================================== */
+
+        .modal {
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1000;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(0,0,0,0.78);
+
+            backdrop-filter: blur(10px);
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-box {
+            width: min(650px, 100%);
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            border:
+                1px solid
+                rgba(0,229,255,0.18);
+
+            border-radius: 20px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #101824,
+                    #070b11
+                );
+
+            box-shadow:
+                0 30px 100px
+                rgba(0,0,0,0.55);
+
+            padding: 28px;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            margin-bottom: 20px;
+        }
+
+        .close {
+            width: 38px;
+            height: 38px;
+
+            border: 1px solid var(--line);
+
+            border-radius: 10px;
+
+            background: rgba(255,255,255,0.05);
+
+            color: white;
+
+            font-size: 18px;
+        }
+
+        .modal-description {
+            color: var(--muted);
+
+            line-height: 1.7;
+
+            white-space: pre-wrap;
+        }
+
+        .modal-price {
+            margin-top: 20px;
+
+            font-size: 28px;
+
+            font-weight: 1000;
+        }
+
+        .modal-download {
+            width: 100%;
+
+            margin-top: 20px;
+        }
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+            padding: 35px 20px;
+
+            text-align: center;
+
+            color: #5e6a7c;
+
+            border-top: 1px solid var(--line);
+
+            font-size: 12px;
+        }
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 850px) {
+            .toolbar {
+                grid-template-columns: 1fr;
             }
 
-          }
+            .stats {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
 
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .topnav {
+                display: none;
+            }
         }
 
-      }
+        @media (max-width: 520px) {
+            .hero {
+                padding-top: 60px;
+            }
 
+            .hero h1 {
+                letter-spacing: -2px;
+            }
 
-      // ==========================================
-      // UPDATE UI
-      // ==========================================
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
 
-      allProjects =
-        allProjects.filter(
-          (item) =>
-            item.id !== id
-        );
-
-
-      renderProjects(
-        allProjects
-      );
-
-      renderDownloads();
-
-      renderAdminProjects();
-
-
-      console.log(
-        "PROJECT DELETED"
-      );
-
-
-    } catch (error) {
-
-      console.error(
-        "DELETE ERROR:",
-        error
-      );
-
-
-      alert(
-        "❌ Delete failed:\n" +
-        error.message
-      );
-
-    }
-
-  };
-
-
-// ======================================================
-// SEARCH
-// ======================================================
-
-function setupSearch() {
-
-  $("searchInput")
-    ?.addEventListener(
-      "input",
-      applyFilters
-    );
-
-
-  $("categoryFilter")
-    ?.addEventListener(
-      "change",
-      applyFilters
-    );
-}
-
-
-function applyFilters() {
-
-  const query =
-    (
-      $("searchInput")
-        ?.value ||
-      ""
-    )
-      .toLowerCase()
-      .trim();
-
-
-  const category =
-    $("categoryFilter")
-      ?.value ||
-    "";
-
-
-  const filtered =
-    allProjects.filter(
-      (project) => {
-
-        const text =
-          (
-            project.title ||
-            ""
-          ) +
-          " " +
-          (
-            project.description ||
-            ""
-          ) +
-          " " +
-          (
-            project.category ||
-            ""
-          );
-
-
-        return (
-
-          (!query ||
-            text
-              .toLowerCase()
-              .includes(query))
-
-          &&
-
-          (!category ||
-            project.category ===
-            category)
-
-        );
-
-      }
-    );
-
-
-  renderProjects(
-    filtered
-  );
-}
-
-
-// ======================================================
-// MODAL
-// ======================================================
-
-function setupModal() {
-
-  $("closeModal")
-    ?.addEventListener(
-      "click",
-      closeModal
-    );
-
-
-  $("modal")
-    ?.addEventListener(
-      "click",
-      (event) => {
-
-        if (
-          event.target ===
-          $("modal")
-        ) {
-
-          closeModal();
+            .admin-card {
+                padding: 18px;
+            }
         }
+    </style>
+</head>
 
-      }
-    );
+<body>
 
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
 
-  document.addEventListener(
-    "keydown",
-    (event) => {
+<header class="topbar">
 
-      if (
-        event.key ===
-        "Escape"
-      ) {
+    <a
+        href="#home"
+        class="brand"
+    >
+        <div class="brand-mark">
+            M3
+        </div>
 
-        closeModal();
-      }
+        <span>MAH3D</span>
+    </a>
 
-    }
-  );
-}
+    <nav class="topnav">
 
+        <a
+            href="#library"
+            class="nav-btn"
+        >
+            Library
+        </a>
 
-function closeModal() {
+        <a
+            href="#admin"
+            class="nav-btn"
+        >
+            Admin
+        </a>
 
-  const modal =
-    $("modal");
+    </nav>
 
-  if (modal) {
-
-    modal.style.display =
-      "none";
-  }
-}
-
-
-window.openProject =
-  function(id) {
-
-    const project =
-      allProjects.find(
-        (item) =>
-          item.id === id
-      );
+</header>
 
 
-    if (!project) return;
+<!-- =========================================================
+     HERO
+========================================================= -->
+
+<section
+    class="hero"
+    id="home"
+>
+
+    <div class="hero-badge">
+        ⚡ MAH3D DIGITAL LIBRARY
+    </div>
+
+    <h1>
+        Build.
+        <strong>Download.</strong>
+        Create.
+    </h1>
+
+    <p>
+        Premium 3D models, mods and digital projects
+        created for the MAH3D community.
+    </p>
+
+</section>
 
 
-    $("modalCategory")
-      .textContent =
-      project.category ||
-      "Other";
+<!-- =========================================================
+     LIBRARY
+========================================================= -->
+
+<main
+    class="library"
+    id="library"
+>
+
+    <div class="toolbar">
+
+        <input
+            id="searchInput"
+            class="input"
+            type="search"
+            placeholder="🔎 Search projects..."
+            autocomplete="off"
+        >
+
+        <select
+            id="categoryFilter"
+            class="select"
+        >
+            <option value="all">
+                All Categories
+            </option>
+
+            <option value="3D">
+                3D
+            </option>
+
+            <option value="BUSSID">
+                BUSSID
+            </option>
+
+            <option value="ETS2">
+                ETS2
+            </option>
+
+            <option value="Blender">
+                Blender
+            </option>
+
+            <option value="Mods">
+                Mods
+            </option>
+
+            <option value="Other">
+                Other
+            </option>
+        </select>
+
+        <select
+            id="accessFilter"
+            class="select"
+        >
+            <option value="all">
+                All Models
+            </option>
+
+            <option value="free">
+                🟢 Free
+            </option>
+
+            <option value="paid">
+                💎 Paid
+            </option>
+        </select>
+
+    </div>
 
 
-    $("modalTitle")
-      .textContent =
-      project.title ||
-      "";
+    <div
+        id="projectsGrid"
+        class="projects-grid"
+    >
+
+        <div class="empty">
+
+            <div class="empty-icon">
+                ⏳
+            </div>
+
+            <div>
+                Loading projects...
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
 
 
-    $("modalDescription")
-      .textContent =
-      project.description ||
-      "No description.";
+<!-- =========================================================
+     ADMIN
+========================================================= -->
+
+<section
+    class="admin-section"
+    id="admin"
+>
+
+    <div class="section-title">
+
+        <h2>
+            MAH3D Admin
+        </h2>
+
+        <p>
+            Manage your digital project library.
+        </p>
+
+    </div>
 
 
-    $("modalDownload")
-      .href =
-      project.file_url ||
-      "#";
+    <!-- LOGIN -->
+
+    <div
+        id="loginPanel"
+        class="admin-card"
+    >
+
+        <h3>
+            🔐 Administrator Login
+        </h3>
+
+        <p
+            style="
+                color:var(--muted);
+                margin:8px 0 20px;
+                font-size:13px;
+            "
+        >
+            Sign in to upload and manage projects.
+        </p>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email
+                </label>
+
+                <input
+                    id="email"
+                    class="input"
+                    type="email"
+                    required
+                    autocomplete="username"
+                    placeholder="admin@email.com"
+                >
+
+            </div>
 
 
-    $("modal")
-      .style.display =
-      "flex";
+            <div class="form-group">
 
-  };
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    id="password"
+                    class="input"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="••••••••"
+                >
+
+            </div>
 
 
-// ======================================================
-// DEBUG
-// ======================================================
+            <button
+                id="loginBtn"
+                class="btn btn-primary"
+                type="submit"
+                style="width:100%;"
+            >
+                LOGIN
+            </button>
 
-console.log(
-  "================================"
-);
+            <div
+                id="loginMessage"
+                class="status"
+            ></div>
 
-console.log(
-  "MAH3D script loaded"
-);
+        </form>
 
-console.log(
-  "Supabase URL:",
-  SUPABASE_URL
-);
+    </div>
 
-console.log(
-  "Supabase client:",
-  supabaseClient
-);
 
-console.log(
-  "================================"
-);
+    <!-- DASHBOARD -->
+
+    <div
+        id="dashboard"
+        class="hidden"
+    >
+
+        <div class="admin-card">
+
+            <div class="admin-header">
+
+                <div>
+
+                    <h3>
+                        ⚡ Dashboard
+                    </h3>
+
+                    <div
+                        id="adminEmail"
+                        class="admin-user"
+                    >
+                        -
+                    </div>
+
+                </div>
+
+                <button
+                    id="logoutBtn"
+                    class="btn btn-secondary"
+                    type="button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+
+            <!-- STATS -->
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Projects
+                    </div>
+
+                    <div
+                        id="projectCount"
+                        class="stat-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Database
+                    </div>
+
+                    <div
+                        id="databaseStatus"
+                        class="stat-value"
+                        style="font-size:16px;"
+                    >
+                        Checking...
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Connection
+                    </div>
+
+                    <div
+                        class="stat-value"
+                        style="font-size:16px;"
+                    >
+
+                        <span
+                            id="statusDot"
+                            class="dot"
+                        ></span>
+
+                        <span id="connectionStatus">
+                            Online
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Paid Models
+                    </div>
+
+                    <div
+                        id="paidCount"
+                        class="stat-value"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- UPLOAD -->
+
+            <div
+                class="admin-card"
+                style="
+                    margin-bottom:20px;
+                    padding:20px;
+                "
+            >
+
+                <h3
+                    style="
+                        margin-bottom:18px;
+                    "
+                >
+                    📤 Upload Project
+                </h3>
+
+
+                <form id="uploadForm">
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+
+                            <label for="projectTitle">
+                                Project Title
+                            </label>
+
+                            <input
+                                id="projectTitle"
+                                class="input"
+                                type="text"
+                                required
+                                placeholder="Mercedes Sprinter"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="projectCategory">
+                                Category
+                            </label>
+
+                            <select
+                                id="projectCategory"
+                                class="select"
+                            >
+
+                                <option value="3D">
+                                    3D
+                                </option>
+
+                                <option value="BUSSID">
+                                    BUSSID
+                                </option>
+
+                                <option value="ETS2">
+                                    ETS2
+                                </option>
+
+                                <option value="Blender">
+                                    Blender
+                                </option>
+
+                                <option value="Mods">
+                                    Mods
+                                </option>
+
+                                <option value="Other">
+                                    Other
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="projectAccess">
+                                Access Type
+                            </label>
+
+                            <select
+                                id="projectAccess"
+                                class="select"
+                            >
+
+                                <option value="free">
+                                    🟢 FREE
+                                </option>
+
+                                <option value="paid">
+                                    💎 PAID
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div
+                            class="form-group"
+                            id="priceGroup"
+                        >
+
+                            <label for="projectPrice">
+                                Price
+                            </label>
+
+                            <input
+                                id="projectPrice"
+                                class="input"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value="0"
+                                placeholder="5.00"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label for="projectDescription">
+                                Description
+                            </label>
+
+                            <textarea
+                                id="projectDescription"
+                                class="textarea"
+                                placeholder="Describe your project..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label for="projectFile">
+                                Project File
+                            </label>
+
+                            <input
+                                id="projectFile"
+                                class="input"
+                                type="file"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="upload-actions">
+
+                        <button
+                            id="uploadBtn"
+                            class="btn btn-primary"
+                            type="submit"
+                        >
+                            🚀 UPLOAD PROJECT
+                        </button>
+
+                        <div class="progress">
+
+                            <div
+                                id="uploadProgress"
+                                class="progress-bar"
+                            ></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="uploadStatus"
+                        class="status"
+                    ></div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ADMIN PROJECTS -->
+
+            <div
+                class="admin-card"
+                style="padding:20px;"
+            >
+
+                <div class="admin-header">
+
+                    <div>
+
+                        <h3>
+                            📦 Your Projects
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="adminProjects"
+                    class="projects-grid"
+                    style="padding-bottom:0;"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     MODAL
+========================================================= -->
+
+<div
+    id="modal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <div>
+
+                <div
+                    id="modalCategory"
+                    class="badges"
+                ></div>
+
+                <h2 id="modalTitle">
+                    Project
+                </h2>
+
+            </div>
+
+            <button
+                id="closeModal"
+                class="close"
+                type="button"
+            >
+                ✕
+            </button>
+
+        </div>
+
+
+        <div
+            id="modalDescription"
+            class="modal-description"
+        ></div>
+
+
+        <div
+            id="modalPrice"
+            class="modal-price"
+        ></div>
+
+
+        <a
+            id="modalDownload"
+            class="btn btn-primary modal-download"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+            DOWNLOAD
+        </a>
+
+    </div>
+
+</div>
+
+
+<footer>
+
+    © <span id="year"></span> MAH3D.
+    All rights reserved.
+
+</footer>
+
+
+<!-- =========================================================
+     SUPABASE
+========================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="./script.js"></script>
+
+</body>
+</html>
