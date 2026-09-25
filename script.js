@@ -33,7 +33,7 @@ Do NOT paste sb_secret_...
 */
 
 const SUPABASE_KEY =
-  "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+  "sb_publishable_iaxxz6gFjhMdR5tTZGZMOg_CiSibohE";
 
 
 if (!window.supabase) {
