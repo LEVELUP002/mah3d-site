@@ -1,170 +1,184 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="MAH3D - 3D, Blender, BUSSID and PC tools">
-<title>MAH3D — Digital Projects</title>
-<link rel="stylesheet" href="style.css?v=6">
-</head>
-<body>
+-- =====================================================
+-- MAH3D PROJECTS + RLS + STORAGE
+-- =====================================================
 
-<header class="site-header">
-  <div class="nav-wrap">
-    <a class="brand" href="#home">
-      <span class="brand-mark">M</span>
-      <span>MAH<span>3D</span></span>
-    </a>
-    <nav>
-      <a href="#home">Home</a>
-      <a href="#projects">Projects</a>
-      <a href="#downloads">Downloads</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-      <a href="#admin">Admin</a>
-    </nav>
-  </div>
-</header>
+create table if not exists public.projects (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text default '',
+  category text default 'Other',
+  file_url text not null,
+  file_name text not null,
+  owner_id uuid references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
 
-<main>
-<section id="home" class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-content">
-    <div class="eyebrow">MAH3D • DIGITAL LAB</div>
-    <h1>BUILD.<br><span>CREATE.</span><br>RELEASE.</h1>
-    <p>3D projects, Blender tools, BUSSID addons, PC utilities and digital creations.</p>
-    <div class="hero-actions">
-      <a class="btn primary" href="#projects">Explore Projects</a>
-      <a class="btn ghost" href="#admin">Admin Upload</a>
-    </div>
-  </div>
-</section>
+alter table public.projects enable row level security;
 
-<section id="projects" class="section">
-  <div class="section-head">
-    <div>
-      <div class="eyebrow">LATEST WORK</div>
-      <h2>Projects</h2>
-    </div>
-    <div class="filters">
-      <input id="searchInput" type="search" placeholder="Search projects...">
-      <select id="categoryFilter">
-        <option value="">All categories</option>
-        <option value="Blender">Blender</option>
-        <option value="BUSSID">BUSSID</option>
-        <option value="Tools">Tools</option>
-        <option value="Android">Android</option>
-        <option value="PC">PC</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-  </div>
-  <div id="projectsGrid" class="project-grid">
-    <div class="loading">Loading projects...</div>
-  </div>
-</section>
 
-<section id="downloads" class="section alt">
-  <div class="section-head">
-    <div>
-      <div class="eyebrow">FILES</div>
-      <h2>Downloads</h2>
-    </div>
-  </div>
-  <div id="downloadsList" class="downloads-list">
-    <div class="loading">Loading downloads...</div>
-  </div>
-</section>
+-- -----------------------------------------------------
+-- PUBLIC READ
+-- -----------------------------------------------------
 
-<section id="about" class="section">
-  <div class="about-grid">
-    <div>
-      <div class="eyebrow">ABOUT MAH3D</div>
-      <h2>Digital work.<br><span>Made to ship.</span></h2>
-    </div>
-    <p>MAH3D is a personal digital project hub for 3D work, Blender development, game addons, utilities and experiments.</p>
-  </div>
-</section>
+drop policy if exists "Public can read projects"
+on public.projects;
 
-<section id="contact" class="section alt">
-  <div class="contact-grid">
-    <div>
-      <div class="eyebrow">CONTACT</div>
-      <h2>Let's build.</h2>
-    </div>
-    <div class="contact-card">
-      <a href="https://wa.me/26138325286" target="_blank" rel="noopener">WhatsApp · +261 38 325 286</a>
-      <a href="mailto:julienmg@gmail.com">julienmg@gmail.com</a>
-    </div>
-  </div>
-</section>
+create policy "Public can read projects"
+on public.projects
+for select
+to anon, authenticated
+using (true);
 
-<section id="admin" class="section admin-section">
-  <div class="admin-box">
-    <div id="loginPanel">
-      <div class="eyebrow">PRIVATE AREA</div>
-      <h2>Admin Login</h2>
-      <form id="loginForm" class="form">
-        <input id="email" type="email" placeholder="Email" required>
-        <input id="password" type="password" placeholder="Password" required>
-        <button class="btn primary" type="submit">Login</button>
-        <div id="loginMessage" class="message"></div>
-      </form>
-    </div>
 
-    <div id="dashboard" style="display:none">
-      <div class="dashboard-top">
-        <div>
-          <div class="eyebrow">ADMIN DASHBOARD</div>
-          <h2>Publish Project</h2>
-          <div id="adminEmail" class="muted"></div>
-        </div>
-        <button id="logoutBtn" class="btn danger" type="button">Logout</button>
-      </div>
+-- -----------------------------------------------------
+-- AUTHENTICATED USERS CAN INSERT
+-- -----------------------------------------------------
 
-      <div class="stat">
-        <span>Published projects</span>
-        <strong id="projectCount">0</strong>
-      </div>
+drop policy if exists "Users can insert own projects"
+on public.projects;
 
-      <form id="uploadForm" class="form">
-        <input id="projectTitle" type="text" placeholder="Project title" required>
-        <textarea id="projectDescription" placeholder="Description"></textarea>
-        <select id="projectCategory">
-          <option value="Blender">Blender</option>
-          <option value="BUSSID">BUSSID</option>
-          <option value="Tools">Tools</option>
-          <option value="Android">Android</option>
-          <option value="PC">PC</option>
-          <option value="Other">Other</option>
-        </select>
-        <input id="projectFile" type="file" required>
-        <button class="btn primary" type="submit">Publish Project</button>
-        <div id="uploadProgress" class="message"></div>
-      </form>
+create policy "Users can insert own projects"
+on public.projects
+for insert
+to authenticated
+with check (
+  owner_id = auth.uid()
+);
 
-      <h3 class="admin-title">Manage projects</h3>
-      <div id="adminProjects"></div>
-    </div>
-  </div>
-</section>
-</main>
 
-<div id="modal" class="modal">
-  <div class="modal-card">
-    <button id="closeModal" class="modal-close" type="button">×</button>
-    <div id="modalCategory" class="project-category"></div>
-    <h2 id="modalTitle"></h2>
-    <p id="modalDescription"></p>
-    <a id="modalDownload" class="btn primary" href="#" target="_blank" rel="noopener">Download</a>
-  </div>
-</div>
+-- -----------------------------------------------------
+-- OWNER CAN DELETE
+-- -----------------------------------------------------
 
-<footer>
-  <strong>MAH3D</strong> <span>© 2026</span> · Digital Projects
-</footer>
+drop policy if exists "Users can delete own projects"
+on public.projects;
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js?v=6"></script>
-</body>
-</html>
+create policy "Users can delete own projects"
+on public.projects
+for delete
+to authenticated
+using (
+  owner_id = auth.uid()
+);
+
+
+-- -----------------------------------------------------
+-- OWNER CAN UPDATE
+-- -----------------------------------------------------
+
+drop policy if exists "Users can update own projects"
+on public.projects;
+
+create policy "Users can update own projects"
+on public.projects
+for update
+to authenticated
+using (
+  owner_id = auth.uid()
+)
+with check (
+  owner_id = auth.uid()
+);
+
+
+-- -----------------------------------------------------
+-- GRANTS
+-- -----------------------------------------------------
+
+grant select on public.projects
+to anon, authenticated;
+
+grant insert, update, delete
+on public.projects
+to authenticated;
+
+
+-- =====================================================
+-- STORAGE BUCKET
+-- =====================================================
+
+insert into storage.buckets
+  (id, name, public)
+values
+  ('projects', 'projects', true)
+on conflict (id)
+do update set public = true;
+
+
+-- -----------------------------------------------------
+-- STORAGE READ
+-- Public download because bucket is public
+-- -----------------------------------------------------
+
+drop policy if exists "Public can read project files"
+on storage.objects;
+
+create policy "Public can read project files"
+on storage.objects
+for select
+to anon, authenticated
+using (
+  bucket_id = 'projects'
+);
+
+
+-- -----------------------------------------------------
+-- STORAGE UPLOAD
+-- User may upload only inside own UUID folder
+-- Example:
+-- USER_UUID/file.zip
+-- -----------------------------------------------------
+
+drop policy if exists "Users can upload own project files"
+on storage.objects;
+
+create policy "Users can upload own project files"
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'projects'
+  and (storage.foldername(name))[1] =
+      auth.uid()::text
+);
+
+
+-- -----------------------------------------------------
+-- STORAGE UPDATE
+-- -----------------------------------------------------
+
+drop policy if exists "Users can update own project files"
+on storage.objects;
+
+create policy "Users can update own project files"
+on storage.objects
+for update
+to authenticated
+using (
+  bucket_id = 'projects'
+  and (storage.foldername(name))[1] =
+      auth.uid()::text
+)
+with check (
+  bucket_id = 'projects'
+  and (storage.foldername(name))[1] =
+      auth.uid()::text
+);
+
+
+-- -----------------------------------------------------
+-- STORAGE DELETE
+-- -----------------------------------------------------
+
+drop policy if exists "Users can delete own project files"
+on storage.objects;
+
+create policy "Users can delete own project files"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'projects'
+  and (storage.foldername(name))[1] =
+      auth.uid()::text
+);
