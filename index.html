@@ -4,44 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>MAH3D — Projects & Downloads</title>
+    <title>MAH3D — Digital Studio</title>
 
-    <meta name="description" content="MAH3D Projects, Tools, Downloads and 3D Resources">
-    <meta name="theme-color" content="#07111f">
+    <meta
+        name="description"
+        content="MAH3D Digital Studio — Projects, tools, 3D assets and downloads."
+    >
+
+    <meta name="theme-color" content="#050812">
 
     <style>
+        /* =========================================================
+           MAH3D PREMIUM UI
+        ========================================================= */
+
+        :root {
+            --bg: #04060d;
+            --bg2: #070b14;
+            --panel: rgba(12, 17, 29, .82);
+            --panel2: rgba(17, 24, 40, .92);
+
+            --line: rgba(255,255,255,.08);
+            --line-blue: rgba(0,183,255,.25);
+
+            --blue: #009dff;
+            --cyan: #00e5ff;
+            --green: #23e69a;
+            --red: #ff4f72;
+            --yellow: #ffc857;
+
+            --text: #f4f8ff;
+            --muted: #8492a7;
+
+            --radius: 18px;
+            --shadow: 0 25px 80px rgba(0,0,0,.42);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        :root {
-            --bg: #050914;
-            --bg2: #08111f;
-            --panel: rgba(12, 23, 40, 0.88);
-            --panel2: rgba(16, 31, 52, 0.92);
-            --border: rgba(82, 164, 255, 0.18);
-            --blue: #1597ff;
-            --blue2: #006cff;
-            --cyan: #00e5ff;
-            --green: #19e68c;
-            --red: #ff496c;
-            --yellow: #ffc857;
-            --text: #f2f7ff;
-            --muted: #8fa6bf;
-            --shadow: 0 20px 60px rgba(0,0,0,.35);
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
             min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
             color: var(--text);
+
             background:
-                radial-gradient(circle at 15% 10%, rgba(0,119,255,.15), transparent 30%),
-                radial-gradient(circle at 85% 20%, rgba(0,229,255,.08), transparent 25%),
-                linear-gradient(135deg, #030711, #07111f 50%, #040811);
+                radial-gradient(
+                    circle at 10% 0%,
+                    rgba(0,157,255,.13),
+                    transparent 28%
+                ),
+                radial-gradient(
+                    circle at 90% 15%,
+                    rgba(0,229,255,.07),
+                    transparent 24%
+                ),
+                radial-gradient(
+                    circle at 50% 100%,
+                    rgba(0,85,255,.08),
+                    transparent 30%
+                ),
+                var(--bg);
+
             overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    black,
+                    transparent 85%
+                );
+
+            z-index: -1;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
         button,
@@ -55,60 +133,134 @@
             cursor: pointer;
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
+        /* =========================================================
+           SCROLLBAR
+        ========================================================= */
+
+        ::-webkit-scrollbar {
+            width: 9px;
         }
 
-        /* =========================
-           TOP NAV
-        ========================== */
+        ::-webkit-scrollbar-track {
+            background: #03050a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #17273b;
+            border-radius: 20px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1f466c;
+        }
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
 
         .navbar {
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 9999;
 
-            height: 72px;
+            height: 74px;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
 
-            padding: 0 5%;
+            padding: 0 clamp(18px, 5vw, 75px);
 
-            background: rgba(3, 8, 17, .78);
-            backdrop-filter: blur(18px);
+            background: rgba(4, 7, 14, .72);
 
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--line);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .navbar::after {
+            content: "";
+
+            position: absolute;
+
+            left: 0;
+            right: 0;
+            bottom: -1px;
+
+            height: 1px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(0,229,255,.35),
+                    transparent
+                );
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 11px;
 
+            font-size: 20px;
             font-weight: 900;
-            font-size: 22px;
+
             letter-spacing: 1px;
         }
 
         .logo-icon {
-            width: 42px;
-            height: 42px;
+            position: relative;
+
+            width: 43px;
+            height: 43px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            border-radius: 12px;
+            border-radius: 13px;
 
             background:
-                linear-gradient(135deg, var(--blue), var(--cyan));
+                linear-gradient(
+                    135deg,
+                    #008cff,
+                    #00e5ff
+                );
 
             color: white;
 
             box-shadow:
-                0 0 25px rgba(21,151,255,.35);
+                0 0 25px rgba(0,183,255,.28),
+                inset 0 1px 0 rgba(255,255,255,.35);
+
+            overflow: hidden;
+        }
+
+        .logo-icon::after {
+            content: "";
+
+            position: absolute;
+
+            width: 80px;
+            height: 15px;
+
+            background: rgba(255,255,255,.25);
+
+            transform: rotate(-35deg) translateX(-50px);
+
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0%, 55% {
+                transform: rotate(-35deg) translateX(-80px);
+            }
+
+            80%, 100% {
+                transform: rotate(-35deg) translateX(80px);
+            }
         }
 
         .logo span {
@@ -118,35 +270,51 @@
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 7px;
         }
 
         .nav-links a {
-            color: var(--muted);
-            font-size: 14px;
-            transition: .2s;
+            padding: 10px 13px;
+
+            border-radius: 10px;
+
+            color: #8796aa;
+
+            font-size: 13px;
+            font-weight: 650;
+
+            transition: .2s ease;
         }
 
         .nav-links a:hover {
             color: white;
+            background: rgba(255,255,255,.05);
         }
 
         .admin-nav-btn {
-            padding: 10px 16px;
-            border-radius: 10px;
+            color: #a8ddff !important;
 
-            background: rgba(21,151,255,.1);
-            border: 1px solid rgba(21,151,255,.3);
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(0,157,255,.13),
+                    rgba(0,229,255,.05)
+                ) !important;
 
-            color: #9fd5ff !important;
+            border: 1px solid rgba(0,183,255,.2);
+
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.04);
         }
 
-        /* =========================
+        /* =========================================================
            HERO
-        ========================== */
+        ========================================================= */
 
         .hero {
-            min-height: 470px;
+            position: relative;
+
+            min-height: 590px;
 
             display: flex;
             align-items: center;
@@ -154,14 +322,14 @@
 
             text-align: center;
 
-            padding: 80px 20px 60px;
+            padding:
+                90px 20px
+                80px;
 
-            position: relative;
             overflow: hidden;
         }
 
-        .hero::before {
-            content: "";
+        .hero-orb {
             position: absolute;
 
             width: 500px;
@@ -169,20 +337,34 @@
 
             border-radius: 50%;
 
-            background: rgba(0,119,255,.12);
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0,157,255,.17),
+                    transparent 68%
+                );
 
-            filter: blur(100px);
+            filter: blur(20px);
 
-            top: -200px;
+            pointer-events: none;
+        }
+
+        .hero-orb.one {
+            top: -280px;
             left: 50%;
-
             transform: translateX(-50%);
+        }
+
+        .hero-orb.two {
+            bottom: -350px;
+            left: 8%;
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            max-width: 900px;
+
+            max-width: 920px;
         }
 
         .hero-badge {
@@ -190,78 +372,120 @@
             align-items: center;
             gap: 8px;
 
-            padding: 8px 14px;
+            padding: 8px 13px;
 
-            border-radius: 50px;
+            border: 1px solid rgba(0,183,255,.2);
 
-            background: rgba(21,151,255,.09);
-            border: 1px solid rgba(21,151,255,.22);
+            border-radius: 100px;
 
-            color: #91d1ff;
+            color: #8fd8ff;
 
-            font-size: 13px;
+            background:
+                rgba(0,157,255,.07);
 
-            margin-bottom: 22px;
+            font-size: 11px;
+            font-weight: 800;
+
+            letter-spacing: 1.2px;
+
+            box-shadow:
+                0 0 35px rgba(0,157,255,.06);
+        }
+
+        .hero-badge::before {
+            content: "";
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--green);
+
+            box-shadow:
+                0 0 12px var(--green);
         }
 
         .hero h1 {
-            font-size: clamp(42px, 7vw, 82px);
-            line-height: .95;
+            margin-top: 25px;
+
+            font-size:
+                clamp(
+                    58px,
+                    11vw,
+                    128px
+                );
+
+            line-height: .84;
+
+            letter-spacing: -7px;
 
             font-weight: 950;
 
-            letter-spacing: -4px;
-
-            margin-bottom: 25px;
-
             background:
                 linear-gradient(
-                    90deg,
-                    #ffffff,
-                    #65c8ff,
-                    #00e5ff
+                    120deg,
+                    #ffffff 5%,
+                    #9ddfff 45%,
+                    #00dfff 70%,
+                    #008cff 100%
                 );
 
             -webkit-background-clip: text;
             background-clip: text;
+
             color: transparent;
+
+            filter:
+                drop-shadow(
+                    0 0 35px
+                    rgba(0,183,255,.16)
+                );
         }
 
-        .hero p {
+        .hero-subtitle {
+            margin: 25px auto 0;
+
             max-width: 680px;
-            margin: auto;
 
-            color: var(--muted);
+            color: #8c9bb0;
 
-            font-size: 17px;
-            line-height: 1.7;
+            font-size: 16px;
+
+            line-height: 1.8;
         }
 
         .hero-buttons {
-            margin-top: 32px;
-
             display: flex;
             justify-content: center;
-            gap: 12px;
-
             flex-wrap: wrap;
+
+            gap: 11px;
+
+            margin-top: 32px;
         }
 
         .btn {
-            border: none;
-
-            padding: 13px 22px;
-
-            border-radius: 12px;
-
-            font-weight: 700;
-
-            transition: .2s;
+            min-height: 45px;
 
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 9px;
+
+            padding: 0 19px;
+
+            border-radius: 11px;
+
+            border: 1px solid transparent;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease,
+                border-color .2s ease;
         }
 
         .btn:hover {
@@ -269,36 +493,47 @@
         }
 
         .btn-primary {
-            background: linear-gradient(
-                135deg,
-                var(--blue),
-                var(--blue2)
-            );
-
             color: white;
 
+            background:
+                linear-gradient(
+                    135deg,
+                    #008cff,
+                    #00baff
+                );
+
             box-shadow:
-                0 10px 30px rgba(0,108,255,.25);
+                0 12px 35px
+                rgba(0,140,255,.22);
+        }
+
+        .btn-primary:hover {
+            box-shadow:
+                0 16px 45px
+                rgba(0,140,255,.32);
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.1);
+            color: #dcecff;
 
-            color: white;
+            background:
+                rgba(255,255,255,.035);
+
+            border-color:
+                rgba(255,255,255,.09);
         }
 
-        /* =========================
-           MAIN
-        ========================== */
+        /* =========================================================
+           CONTAINER / SECTIONS
+        ========================================================= */
 
         .container {
-            width: min(1200px, 92%);
+            width: min(1180px, 92%);
             margin: auto;
         }
 
         .section {
-            padding: 60px 0;
+            padding: 65px 0;
         }
 
         .section-title {
@@ -306,147 +541,224 @@
             justify-content: space-between;
             align-items: end;
 
-            gap: 20px;
+            gap: 25px;
 
             margin-bottom: 25px;
         }
 
         .section-title h2 {
-            font-size: 30px;
+            font-size: 29px;
+            letter-spacing: -.8px;
         }
 
         .section-title p {
-            color: var(--muted);
-            font-size: 14px;
             margin-top: 7px;
+
+            color: var(--muted);
+
+            font-size: 13px;
         }
 
-        /* =========================
-           PROJECTS
-        ========================== */
+        /* =========================================================
+           PROJECT GRID
+        ========================================================= */
 
         #projectsGrid {
             display: grid;
 
             grid-template-columns:
-                repeat(auto-fill, minmax(280px, 1fr));
+                repeat(
+                    auto-fill,
+                    minmax(270px, 1fr)
+                );
 
-            gap: 20px;
+            gap: 17px;
         }
 
         .project-card {
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(16,31,52,.92),
-                    rgba(8,16,29,.92)
-                );
-
-            border: 1px solid var(--border);
-
-            border-radius: 18px;
+            position: relative;
 
             overflow: hidden;
 
-            box-shadow: var(--shadow);
+            border-radius: var(--radius);
 
-            transition: .25s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-
-            border-color:
-                rgba(21,151,255,.4);
-
-            box-shadow:
-                0 25px 70px rgba(0,0,0,.45),
-                0 0 30px rgba(21,151,255,.08);
-        }
-
-        .project-image {
-            height: 150px;
+            border: 1px solid var(--line);
 
             background:
                 linear-gradient(
-                    135deg,
-                    #071d35,
-                    #0a4268
+                    145deg,
+                    rgba(17,25,42,.85),
+                    rgba(7,11,20,.92)
                 );
+
+            box-shadow: 0 18px 60px rgba(0,0,0,.2);
+
+            transition:
+                transform .25s ease,
+                border-color .25s ease,
+                box-shadow .25s ease;
+        }
+
+        .project-card::before {
+            content: "";
+
+            position: absolute;
+
+            top: -100px;
+            right: -100px;
+
+            width: 220px;
+            height: 220px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0,183,255,.12),
+                    transparent 65%
+                );
+
+            pointer-events: none;
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px);
+
+            border-color:
+                rgba(0,183,255,.28);
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,.38),
+                0 0 35px rgba(0,157,255,.05);
+        }
+
+        .project-image {
+            height: 155px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            font-size: 48px;
+            position: relative;
 
-            color: #65c8ff;
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(0,157,255,.2),
+                    transparent 55%
+                ),
+                linear-gradient(
+                    135deg,
+                    #08182a,
+                    #06101c
+                );
+
+            border-bottom:
+                1px solid rgba(255,255,255,.05);
+
+            font-size: 45px;
+        }
+
+        .project-image::after {
+            content: "MAH3D";
+
+            position: absolute;
+
+            right: 13px;
+            bottom: 10px;
+
+            font-size: 9px;
+
+            color: rgba(255,255,255,.25);
+
+            letter-spacing: 1px;
         }
 
         .project-body {
-            padding: 20px;
+            padding: 19px;
         }
 
         .project-category {
-            display: inline-block;
+            display: inline-flex;
 
             padding: 5px 9px;
 
             border-radius: 7px;
 
-            font-size: 11px;
+            color: #77d1ff;
 
-            background: rgba(21,151,255,.1);
+            background:
+                rgba(0,157,255,.08);
 
-            color: #70c7ff;
+            border:
+                1px solid rgba(0,157,255,.12);
 
-            margin-bottom: 12px;
+            font-size: 10px;
+            font-weight: 800;
+
+            letter-spacing: .4px;
         }
 
         .project-title {
-            font-size: 20px;
-            margin-bottom: 8px;
+            margin-top: 12px;
+
+            font-size: 18px;
+            font-weight: 850;
         }
 
         .project-description {
-            color: var(--muted);
+            margin-top: 8px;
 
-            font-size: 13px;
+            min-height: 43px;
 
-            line-height: 1.6;
+            color: #8291a5;
 
-            min-height: 42px;
+            font-size: 12px;
 
-            margin-bottom: 17px;
+            line-height: 1.65;
         }
 
         .project-footer {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
 
             gap: 10px;
+
+            margin-top: 17px;
         }
 
         .project-date {
-            color: #6d829a;
-            font-size: 11px;
+            color: #58687b;
+            font-size: 10px;
         }
 
         .download-btn {
-            padding: 9px 13px;
+            display: inline-flex;
+            align-items: center;
 
-            border-radius: 9px;
+            padding: 8px 11px;
 
-            background: rgba(25,230,140,.08);
+            border-radius: 8px;
 
-            border: 1px solid rgba(25,230,140,.2);
+            color: #72efb5;
 
-            color: #68efb0;
+            background:
+                rgba(35,230,154,.06);
 
-            font-size: 12px;
+            border:
+                1px solid rgba(35,230,154,.14);
 
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
+
+            transition: .2s;
+        }
+
+        .download-btn:hover {
+            background:
+                rgba(35,230,154,.11);
         }
 
         .empty-projects {
@@ -456,111 +768,146 @@
 
             text-align: center;
 
-            border: 1px dashed rgba(255,255,255,.1);
+            color: #68778b;
+
+            border:
+                1px dashed rgba(255,255,255,.09);
 
             border-radius: 18px;
 
-            color: var(--muted);
+            background:
+                rgba(255,255,255,.015);
         }
 
-        /* =========================
-           ADMIN
-        ========================== */
-
-        #admin {
-            padding-top: 50px;
-        }
+        /* =========================================================
+           LOGIN
+        ========================================================= */
 
         #loginPanel {
-            max-width: 460px;
+            width: min(450px, 100%);
 
-            margin: 60px auto;
+            margin: 35px auto;
 
-            padding: 32px;
+            padding: 30px;
+
+            border:
+                1px solid rgba(0,183,255,.15);
+
+            border-radius: 22px;
 
             background:
                 linear-gradient(
                     145deg,
-                    rgba(15,29,49,.96),
-                    rgba(7,14,25,.96)
+                    rgba(14,23,39,.92),
+                    rgba(6,10,18,.95)
                 );
 
-            border: 1px solid var(--border);
+            box-shadow:
+                var(--shadow),
+                0 0 50px rgba(0,157,255,.035);
 
-            border-radius: 20px;
-
-            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
         }
 
         .admin-header {
-            margin-bottom: 25px;
+            margin-bottom: 24px;
         }
 
         .admin-header h2 {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 27px;
+            letter-spacing: -.7px;
         }
 
         .admin-header p {
+            margin-top: 8px;
+
             color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
+
+            font-size: 12px;
+
+            line-height: 1.6;
         }
 
         .form-group {
-            margin-bottom: 17px;
+            margin-bottom: 16px;
         }
 
         .form-group label {
             display: block;
 
-            margin-bottom: 8px;
+            margin-bottom: 7px;
 
-            color: #c9d8e8;
+            color: #c8d6e7;
 
-            font-size: 13px;
+            font-size: 11px;
+            font-weight: 800;
 
-            font-weight: 700;
+            text-transform: uppercase;
+
+            letter-spacing: .7px;
         }
 
-        .input,
         .form-group input,
         .form-group textarea,
-        .form-group select {
+        .form-group select,
+        .toolbar input,
+        .toolbar select {
             width: 100%;
 
-            padding: 13px 14px;
-
-            background: rgba(0,0,0,.22);
-
-            border: 1px solid rgba(255,255,255,.09);
-
-            border-radius: 10px;
+            outline: none;
 
             color: white;
 
-            outline: none;
+            background:
+                rgba(0,0,0,.24);
+
+            border:
+                1px solid rgba(255,255,255,.08);
+
+            border-radius: 11px;
 
             transition: .2s;
         }
 
+        .form-group input,
+        .form-group select,
+        .toolbar input,
+        .toolbar select {
+            height: 45px;
+            padding: 0 13px;
+        }
+
         .form-group textarea {
-            min-height: 110px;
+            min-height: 105px;
+
+            padding: 12px 13px;
+
             resize: vertical;
         }
 
-        .form-group select option {
-            background: #091421;
-            color: white;
+        .form-group input::placeholder,
+        .form-group textarea::placeholder,
+        .toolbar input::placeholder {
+            color: #536276;
         }
 
         .form-group input:focus,
         .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: var(--blue);
+        .form-group select:focus,
+        .toolbar input:focus,
+        .toolbar select:focus {
+            border-color:
+                rgba(0,183,255,.5);
 
             box-shadow:
-                0 0 0 3px rgba(21,151,255,.08);
+                0 0 0 3px
+                rgba(0,157,255,.07);
+        }
+
+        .form-group select option,
+        .toolbar select option {
+            background: #0a111c;
+            color: white;
         }
 
         #loginBtn,
@@ -569,20 +916,20 @@
         }
 
         #loginMessage {
-            margin-top: 15px;
-
-            padding: 10px;
-
-            border-radius: 9px;
-
-            font-size: 13px;
-
             display: none;
+
+            margin-top: 13px;
+
+            padding: 11px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
         }
 
-        /* =========================
+        /* =========================================================
            DASHBOARD
-        ========================== */
+        ========================================================= */
 
         #dashboard {
             display: none;
@@ -595,54 +942,93 @@
 
             gap: 20px;
 
-            margin-bottom: 25px;
+            padding: 19px;
+
+            margin-bottom: 15px;
+
+            border:
+                1px solid var(--line);
+
+            border-radius: 17px;
+
+            background:
+                rgba(10,16,27,.7);
+
+            box-shadow:
+                0 15px 50px rgba(0,0,0,.2);
         }
 
         .dashboard-user {
             display: flex;
             align-items: center;
-            gap: 13px;
+            gap: 12px;
         }
 
         .avatar {
+            position: relative;
+
             width: 46px;
             height: 46px;
-
-            border-radius: 12px;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
+            border-radius: 13px;
+
+            color: white;
+
             background:
                 linear-gradient(
                     135deg,
-                    var(--blue),
-                    var(--cyan)
+                    #008cff,
+                    #00e5ff
                 );
 
-            font-weight: 900;
+            font-weight: 950;
+
+            box-shadow:
+                0 0 25px rgba(0,157,255,.2);
         }
 
         .dashboard-user strong {
             display: block;
-            margin-bottom: 4px;
+
+            font-size: 13px;
         }
 
         .dashboard-user small {
-            color: var(--muted);
+            display: block;
+
+            margin-top: 4px;
+
+            color: #687a90;
+
+            font-size: 11px;
         }
 
         #logoutBtn {
-            background: rgba(255,73,108,.08);
+            height: 39px;
 
-            border: 1px solid rgba(255,73,108,.22);
+            padding: 0 14px;
+
+            border-radius: 9px;
 
             color: #ff7893;
 
-            padding: 10px 16px;
+            background:
+                rgba(255,79,114,.06);
 
-            border-radius: 10px;
+            border:
+                1px solid rgba(255,79,114,.14);
+
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        #logoutBtn:hover {
+            background:
+                rgba(255,79,114,.1);
         }
 
         .stats-grid {
@@ -651,33 +1037,66 @@
             grid-template-columns:
                 repeat(3, 1fr);
 
-            gap: 15px;
+            gap: 12px;
 
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
 
         .stat-card {
-            padding: 22px;
+            position: relative;
 
-            background: var(--panel);
+            padding: 19px;
 
-            border: 1px solid var(--border);
+            overflow: hidden;
 
-            border-radius: 16px;
+            border:
+                1px solid var(--line);
+
+            border-radius: 15px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15,23,39,.82),
+                    rgba(8,12,21,.85)
+                );
+        }
+
+        .stat-card::after {
+            content: "";
+
+            position: absolute;
+
+            right: -35px;
+            bottom: -45px;
+
+            width: 110px;
+            height: 110px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(0,157,255,.09),
+                    transparent 65%
+                );
         }
 
         .stat-label {
-            color: var(--muted);
+            color: #63758a;
 
-            font-size: 12px;
+            font-size: 9px;
+            font-weight: 900;
 
-            margin-bottom: 10px;
+            letter-spacing: 1px;
         }
 
         .stat-value {
-            font-size: 28px;
+            margin-top: 9px;
 
-            font-weight: 900;
+            font-size: 25px;
+            font-weight: 950;
         }
 
         .status-online {
@@ -685,88 +1104,97 @@
         }
 
         .admin-panel {
-            background: var(--panel);
+            margin-top: 15px;
 
-            border: 1px solid var(--border);
+            padding: 23px;
+
+            border:
+                1px solid var(--line);
 
             border-radius: 18px;
 
-            padding: 24px;
-
-            margin-bottom: 25px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(13,20,34,.82),
+                    rgba(7,11,19,.88)
+                );
         }
 
         .admin-panel h3 {
-            margin-bottom: 20px;
+            margin-bottom: 19px;
+
+            font-size: 16px;
+            letter-spacing: -.2px;
         }
 
         #uploadProgress {
             display: none;
 
-            margin-top: 15px;
+            margin-top: 13px;
 
-            padding: 12px;
+            padding: 11px;
 
-            border-radius: 10px;
+            border-radius: 9px;
 
-            background: rgba(21,151,255,.08);
+            color: #83d2ff;
 
-            color: #8dccff;
+            background:
+                rgba(0,157,255,.07);
 
-            font-size: 13px;
+            border:
+                1px solid rgba(0,157,255,.12);
+
+            font-size: 11px;
         }
 
-        /* =========================
-           ADMIN PROJECT LIST
-        ========================== */
+        /* =========================================================
+           TOOLBAR
+        ========================================================= */
 
         .toolbar {
-            display: flex;
+            display: grid;
 
-            gap: 10px;
+            grid-template-columns: 1fr 190px;
 
-            margin-bottom: 18px;
+            gap: 9px;
+
+            margin-bottom: 15px;
         }
 
-        .toolbar input,
-        .toolbar select {
-            flex: 1;
-
-            padding: 12px;
-
-            background: rgba(0,0,0,.2);
-
-            border: 1px solid rgba(255,255,255,.08);
-
-            border-radius: 10px;
-
-            color: white;
-
-            outline: none;
-        }
-
-        .toolbar select option {
-            background: #091421;
-        }
+        /* =========================================================
+           ADMIN PROJECTS
+        ========================================================= */
 
         .admin-project {
             display: flex;
 
             justify-content: space-between;
-
             align-items: center;
 
             gap: 15px;
 
-            padding: 15px;
+            padding: 14px;
 
-            margin-bottom: 10px;
+            margin-bottom: 8px;
 
-            background: rgba(255,255,255,.025);
-
-            border: 1px solid rgba(255,255,255,.06);
+            border:
+                1px solid rgba(255,255,255,.055);
 
             border-radius: 12px;
+
+            background:
+                rgba(255,255,255,.018);
+
+            transition: .2s;
+        }
+
+        .admin-project:hover {
+            border-color:
+                rgba(0,183,255,.18);
+
+            background:
+                rgba(0,157,255,.025);
         }
 
         .admin-project-info {
@@ -776,86 +1204,122 @@
         .admin-project-info strong {
             display: block;
 
-            margin-bottom: 5px;
-
-            white-space: nowrap;
-
             overflow: hidden;
 
+            white-space: nowrap;
             text-overflow: ellipsis;
-        }
-
-        .admin-project-info small {
-            color: var(--muted);
-        }
-
-        .admin-actions {
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .admin-actions button {
-            border: none;
-
-            padding: 9px 12px;
-
-            border-radius: 8px;
 
             font-size: 12px;
         }
 
+        .admin-project-info small {
+            display: block;
+
+            margin-top: 5px;
+
+            color: #607187;
+
+            font-size: 10px;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 6px;
+
+            flex-shrink: 0;
+        }
+
+        .admin-actions button {
+            height: 34px;
+
+            padding: 0 11px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 10px;
+            font-weight: 800;
+        }
+
         .view-btn {
-            background: rgba(21,151,255,.1);
-            color: #75c7ff;
+            color: #74caff;
+
+            background:
+                rgba(0,157,255,.08);
+
+            border:
+                1px solid rgba(0,157,255,.12) !important;
         }
 
         .delete-btn {
-            background: rgba(255,73,108,.08);
-            color: #ff708c;
+            color: #ff7792;
+
+            background:
+                rgba(255,79,114,.07);
+
+            border:
+                1px solid rgba(255,79,114,.12) !important;
         }
 
-        /* =========================
+        /* =========================================================
            DOWNLOADS
-        ========================== */
+        ========================================================= */
 
         #downloadsList {
             display: grid;
 
             grid-template-columns:
-                repeat(auto-fill, minmax(250px, 1fr));
+                repeat(
+                    auto-fill,
+                    minmax(250px, 1fr)
+                );
 
-            gap: 15px;
+            gap: 13px;
         }
 
         .download-item {
-            padding: 18px;
+            padding: 17px;
 
-            background: var(--panel);
-
-            border: 1px solid var(--border);
+            border:
+                1px solid var(--line);
 
             border-radius: 14px;
+
+            background:
+                rgba(11,17,29,.7);
+
+            transition: .2s;
+        }
+
+        .download-item:hover {
+            border-color:
+                rgba(0,183,255,.2);
+
+            transform: translateY(-2px);
         }
 
         .download-item strong {
             display: block;
-            margin-bottom: 7px;
+
+            font-size: 13px;
+
+            margin-bottom: 6px;
         }
 
         .download-item span {
-            color: var(--muted);
-
-            font-size: 12px;
-
             display: block;
 
-            margin-bottom: 13px;
+            margin-bottom: 12px;
+
+            color: #68798e;
+
+            font-size: 10px;
         }
 
-        /* =========================
+        /* =========================================================
            MODAL
-        ========================== */
+        ========================================================= */
 
         #modal {
             display: none;
@@ -864,140 +1328,184 @@
 
             inset: 0;
 
-            z-index: 5000;
-
-            background: rgba(0,0,0,.75);
-
-            backdrop-filter: blur(8px);
+            z-index: 99999;
 
             align-items: center;
             justify-content: center;
 
             padding: 20px;
+
+            background:
+                rgba(0,0,0,.75);
+
+            backdrop-filter: blur(12px);
         }
 
         .modal-box {
-            width: min(600px, 100%);
+            width: min(590px, 100%);
+
+            padding: 26px;
+
+            border:
+                1px solid rgba(0,183,255,.2);
+
+            border-radius: 20px;
 
             background:
                 linear-gradient(
                     145deg,
-                    #0d1c2f,
-                    #07101c
+                    #101b2c,
+                    #060b14
                 );
 
-            border: 1px solid var(--border);
-
-            border-radius: 18px;
-
-            padding: 28px;
-
             box-shadow:
-                0 30px 100px rgba(0,0,0,.6);
+                0 35px 100px rgba(0,0,0,.65),
+                0 0 50px rgba(0,157,255,.06);
         }
 
         .modal-top {
             display: flex;
 
             justify-content: space-between;
-
-            align-items: center;
+            align-items: flex-start;
 
             gap: 20px;
 
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         #closeModal {
             width: 35px;
             height: 35px;
 
+            flex-shrink: 0;
+
             border: none;
 
             border-radius: 9px;
 
-            background: rgba(255,255,255,.06);
-
             color: white;
 
-            font-size: 20px;
+            background:
+                rgba(255,255,255,.06);
+
+            font-size: 21px;
+        }
+
+        #closeModal:hover {
+            background:
+                rgba(255,255,255,.1);
         }
 
         #modalCategory {
-            display: inline-block;
+            display: inline-flex;
 
             padding: 5px 9px;
 
-            background: rgba(21,151,255,.1);
-
-            color: #6fc6ff;
+            margin-bottom: 9px;
 
             border-radius: 7px;
 
-            font-size: 11px;
+            color: #72ceff;
 
-            margin-bottom: 10px;
+            background:
+                rgba(0,157,255,.08);
+
+            font-size: 9px;
+            font-weight: 900;
+
+            text-transform: uppercase;
         }
 
         #modalTitle {
-            font-size: 26px;
+            font-size: 25px;
         }
 
         #modalDescription {
-            color: var(--muted);
+            margin-bottom: 22px;
 
-            line-height: 1.7;
+            color: #8796a9;
 
-            margin-bottom: 25px;
+            font-size: 13px;
+
+            line-height: 1.75;
         }
 
-        /* =========================
+        /* =========================================================
+           SUPABASE STATUS
+        ========================================================= */
+
+        #statusDot {
+            display: inline-block;
+
+            width: 8px !important;
+            height: 8px !important;
+
+            border-radius: 50%;
+
+            background: var(--green) !important;
+
+            box-shadow:
+                0 0 12px var(--green) !important;
+        }
+
+        /* =========================================================
            FOOTER
-        ========================== */
+        ========================================================= */
 
         footer {
-            margin-top: 60px;
+            position: relative;
 
-            padding: 30px 5%;
+            margin-top: 50px;
+
+            padding: 32px 20px;
 
             text-align: center;
 
-            border-top: 1px solid var(--border);
+            color: #4f5f73;
 
-            color: #667c94;
+            font-size: 10px;
+
+            border-top:
+                1px solid rgba(255,255,255,.06);
+        }
+
+        footer strong {
+            color: #7fcfff;
+        }
+
+        /* =========================================================
+           LOADING
+        ========================================================= */
+
+        .loading {
+            grid-column: 1 / -1;
+
+            padding: 65px;
+
+            text-align: center;
+
+            color: #67788e;
 
             font-size: 12px;
         }
 
-        footer strong {
-            color: #8acfff;
-        }
-
-        /* =========================
-           LOADING
-        ========================== */
-
-        .loading {
-            padding: 60px;
-
-            text-align: center;
-
-            color: var(--muted);
-        }
-
         .spinner {
-            width: 35px;
-            height: 35px;
+            width: 31px;
+            height: 31px;
 
-            border: 3px solid rgba(255,255,255,.1);
+            margin: 0 auto 14px;
 
-            border-top-color: var(--blue);
+            border:
+                3px solid rgba(255,255,255,.08);
+
+            border-top-color:
+                var(--cyan);
 
             border-radius: 50%;
 
-            animation: spin .8s linear infinite;
-
-            margin: 0 auto 15px;
+            animation:
+                spin .75s linear infinite;
         }
 
         @keyframes spin {
@@ -1006,54 +1514,60 @@
             }
         }
 
-        /* =========================
+        /* =========================================================
            MOBILE
-        ========================== */
+        ========================================================= */
 
-        @media (max-width: 700px) {
+        @media (max-width: 720px) {
 
             .navbar {
-                height: 64px;
-                padding: 0 4%;
+                height: 66px;
+                padding: 0 15px;
+            }
+
+            .logo {
+                font-size: 17px;
+            }
+
+            .logo-icon {
+                width: 37px;
+                height: 37px;
+                border-radius: 11px;
             }
 
             .nav-links {
-                gap: 8px;
+                gap: 2px;
             }
 
             .nav-links a:not(.admin-nav-btn) {
                 display: none;
             }
 
-            .logo {
-                font-size: 18px;
-            }
-
-            .logo-icon {
-                width: 36px;
-                height: 36px;
+            .nav-links a {
+                padding: 9px 10px;
             }
 
             .hero {
-                min-height: 430px;
-                padding-top: 60px;
+                min-height: 500px;
+                padding: 70px 17px;
             }
 
             .hero h1 {
-                letter-spacing: -2px;
+                font-size: 70px;
+                letter-spacing: -5px;
             }
 
-            .hero p {
-                font-size: 15px;
+            .hero-subtitle {
+                font-size: 13px;
             }
 
             .section {
-                padding: 40px 0;
+                padding: 48px 0;
             }
 
             .section-title {
-                align-items: flex-start;
                 flex-direction: column;
+                align-items: flex-start;
             }
 
             .stats-grid {
@@ -1066,7 +1580,7 @@
             }
 
             .toolbar {
-                flex-direction: column;
+                grid-template-columns: 1fr;
             }
 
             .admin-project {
@@ -1083,8 +1597,27 @@
             }
 
             #loginPanel {
-                margin: 30px auto;
-                padding: 22px;
+                padding: 23px;
+            }
+
+            .admin-panel {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 420px) {
+
+            .hero h1 {
+                font-size: 57px;
+                letter-spacing: -4px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
             }
         }
     </style>
@@ -1092,14 +1625,17 @@
 
 <body>
 
-    <!-- =========================
+    <!-- =========================================================
          NAVBAR
-    ========================== -->
+    ========================================================== -->
 
     <nav class="navbar">
 
         <a href="#" class="logo">
-            <div class="logo-icon">M</div>
+            <div class="logo-icon">
+                M
+            </div>
+
             MAH<span>3D</span>
         </a>
 
@@ -1113,8 +1649,11 @@
                 Downloads
             </a>
 
-            <a href="#admin" class="admin-nav-btn">
-                Admin
+            <a
+                href="#admin"
+                class="admin-nav-btn"
+            >
+                ⚡ Admin
             </a>
 
         </div>
@@ -1122,25 +1661,29 @@
     </nav>
 
 
-    <!-- =========================
+    <!-- =========================================================
          HERO
-    ========================== -->
+    ========================================================== -->
 
     <header class="hero">
+
+        <div class="hero-orb one"></div>
+        <div class="hero-orb two"></div>
 
         <div class="hero-content">
 
             <div class="hero-badge">
-                ● MAH3D DIGITAL LAB
+                MAH3D DIGITAL STUDIO
             </div>
 
             <h1>
                 MAH3D
             </h1>
 
-            <p>
-                Projects, tools, 3D assets and digital resources
-                created by MAH3D.
+            <p class="hero-subtitle">
+                Digital tools, 3D projects, software and resources
+                built for creators. Explore the latest projects
+                published through the MAH3D platform.
             </p>
 
             <div class="hero-buttons">
@@ -1149,14 +1692,14 @@
                     href="#projects"
                     class="btn btn-primary"
                 >
-                    Explore Projects
+                    🚀 Explore Projects
                 </a>
 
                 <a
                     href="#downloads"
                     class="btn btn-secondary"
                 >
-                    Downloads
+                    ↓ Downloads
                 </a>
 
             </div>
@@ -1166,11 +1709,15 @@
     </header>
 
 
-    <!-- =========================
-         PROJECTS
-    ========================== -->
+    <!-- =========================================================
+         MAIN
+    ========================================================== -->
 
     <main>
+
+        <!-- =====================================================
+             PROJECTS
+        ====================================================== -->
 
         <section
             id="projects"
@@ -1182,6 +1729,7 @@
                 <div class="section-title">
 
                     <div>
+
                         <h2>
                             Latest Projects
                         </h2>
@@ -1189,9 +1737,11 @@
                         <p>
                             Projects published from the MAH3D admin panel.
                         </p>
+
                     </div>
 
                 </div>
+
 
                 <div id="projectsGrid">
 
@@ -1210,9 +1760,9 @@
         </section>
 
 
-        <!-- =========================
+        <!-- =====================================================
              DOWNLOADS
-        ========================== -->
+        ====================================================== -->
 
         <section
             id="downloads"
@@ -1224,6 +1774,7 @@
                 <div class="section-title">
 
                     <div>
+
                         <h2>
                             Downloads
                         </h2>
@@ -1231,9 +1782,11 @@
                         <p>
                             Available MAH3D files and resources.
                         </p>
+
                     </div>
 
                 </div>
+
 
                 <div id="downloadsList">
 
@@ -1248,9 +1801,9 @@
         </section>
 
 
-        <!-- =========================
+        <!-- =====================================================
              ADMIN
-        ========================== -->
+        ====================================================== -->
 
         <section
             id="admin"
@@ -1259,7 +1812,9 @@
 
             <div class="container">
 
-                <!-- LOGIN -->
+                <!-- =================================================
+                     LOGIN PANEL
+                ================================================== -->
 
                 <section id="loginPanel">
 
@@ -1270,11 +1825,12 @@
                         </h2>
 
                         <p>
-                            Sign in to manage projects,
-                            upload files and publish resources.
+                            Secure administration panel for managing
+                            projects, files and published resources.
                         </p>
 
                     </div>
+
 
                     <form id="loginForm">
 
@@ -1306,7 +1862,7 @@
                                 type="password"
                                 id="password"
                                 name="password"
-                                placeholder="••••••••"
+                                placeholder="••••••••••••"
                                 autocomplete="current-password"
                                 required
                             >
@@ -1319,8 +1875,9 @@
                             id="loginBtn"
                             class="btn btn-primary"
                         >
-                            Login to Dashboard
+                            🔐 Login to Dashboard
                         </button>
+
 
                         <div id="loginMessage"></div>
 
@@ -1329,7 +1886,9 @@
                 </section>
 
 
-                <!-- DASHBOARD -->
+                <!-- =================================================
+                     DASHBOARD
+                ================================================== -->
 
                 <section id="dashboard">
 
@@ -1370,7 +1929,7 @@
                         <div class="stat-card">
 
                             <div class="stat-label">
-                                PROJECTS
+                                TOTAL PROJECTS
                             </div>
 
                             <div
@@ -1417,56 +1976,51 @@
                     </div>
 
 
-                    <!-- CONNECTION INDICATOR -->
+                    <!-- SUPABASE STATUS -->
 
                     <div
                         style="
                             display:flex;
                             align-items:center;
                             gap:8px;
-                            margin-bottom:20px;
-                            color:#8fa6bf;
-                            font-size:13px;
+                            margin:13px 3px;
+                            color:#697b90;
+                            font-size:10px;
+                            font-weight:700;
                         "
                     >
 
-                        <span
-                            id="statusDot"
-                            style="
-                                width:9px;
-                                height:9px;
-                                border-radius:50%;
-                                background:#19e68c;
-                                box-shadow:0 0 12px #19e68c;
-                            "
-                        ></span>
+                        <span id="statusDot"></span>
 
-                        Supabase connected
+                        SUPABASE CONNECTION ACTIVE
 
                     </div>
 
 
-                    <!-- UPLOAD -->
+                    <!-- =================================================
+                         UPLOAD PANEL
+                    ================================================== -->
 
                     <div class="admin-panel">
 
                         <h3>
-                            Publish New Project
+                            📤 Publish New Project
                         </h3>
+
 
                         <form id="uploadForm">
 
                             <div class="form-group">
 
                                 <label for="projectTitle">
-                                    Project title
+                                    Project Title
                                 </label>
 
                                 <input
                                     type="text"
                                     id="projectTitle"
                                     name="title"
-                                    placeholder="MAH3D Tool"
+                                    placeholder="MAH3D Premium Tool"
                                     required
                                 >
 
@@ -1539,7 +2093,7 @@
                             <div class="form-group">
 
                                 <label for="projectFile">
-                                    Project file
+                                    Project File
                                 </label>
 
                                 <input
@@ -1557,12 +2111,12 @@
                                 id="uploadBtn"
                                 class="btn btn-primary"
                             >
-                                Publish Project
+                                🚀 Publish Project
                             </button>
 
 
                             <div id="uploadProgress">
-                                Uploading...
+                                Uploading project...
                             </div>
 
                         </form>
@@ -1570,12 +2124,14 @@
                     </div>
 
 
-                    <!-- PROJECT MANAGEMENT -->
+                    <!-- =================================================
+                         PROJECT LIBRARY
+                    ================================================== -->
 
                     <div class="admin-panel">
 
                         <h3>
-                            Project Library
+                            📁 Project Library
                         </h3>
 
 
@@ -1591,7 +2147,7 @@
                             <select id="categoryFilter">
 
                                 <option value="">
-                                    All categories
+                                    All Categories
                                 </option>
 
                                 <option value="Tool">
@@ -1650,9 +2206,9 @@
     </main>
 
 
-    <!-- =========================
-         MODAL
-    ========================== -->
+    <!-- =========================================================
+         PROJECT MODAL
+    ========================================================== -->
 
     <div id="modal">
 
@@ -1672,6 +2228,7 @@
 
                 </div>
 
+
                 <button id="closeModal">
                     ×
                 </button>
@@ -1689,9 +2246,9 @@
                 class="btn btn-primary"
                 href="#"
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
             >
-                Download Project
+                ↓ Download Project
             </a>
 
         </div>
@@ -1699,28 +2256,29 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =========================================================
          FOOTER
-    ========================== -->
+    ========================================================== -->
 
     <footer>
 
         <strong>MAH3D</strong>
 
-        <br>
+        <br><br>
 
-        Digital tools • 3D • Software • Projects
+        Digital Studio • 3D • Tools • Software • Projects
 
         <br><br>
 
-        © 2026 MAH3D. All rights reserved.
+        © 2026 MAH3D — All rights reserved.
 
     </footer>
 
 
-    <!-- IMPORTANT:
-         Supabase MUST load BEFORE script.js
-    -->
+    <!-- =========================================================
+         SUPABASE
+         MUST LOAD BEFORE script.js
+    ========================================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
