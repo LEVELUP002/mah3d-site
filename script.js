@@ -1,1632 +1,2305 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+"use strict";
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+/*
+=========================================================
+ MAH3D SUPABASE WEBSITE
+ FREE / PAID PROJECT SYSTEM
+=========================================================
+*/
 
-    <meta
-        name="description"
-        content="MAH3D - Premium 3D Models, Mods and Digital Projects"
-    >
+console.log("======================================");
+console.log("MAH3D SUPABASE ADMIN STARTING");
+console.log("======================================");
 
-    <title>MAH3D — 3D Project Library</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+/* =======================================================
+   SUPABASE CONFIG
+======================================================= */
 
-        :root {
-            --bg: #05070b;
-            --bg2: #080d15;
-            --panel: rgba(13, 19, 30, 0.88);
-            --panel2: rgba(17, 25, 39, 0.95);
+const SUPABASE_URL =
+    "https://drfxgjvvldccxbccgiud.supabase.co";
 
-            --line: rgba(255,255,255,0.08);
-            --line2: rgba(0, 229, 255, 0.22);
+/*
+ IMPORTANT:
 
-            --text: #f3f8ff;
-            --muted: #8492a8;
+Apetaho eto ilay Publishable key izay efa nampiasainao
+tamin'ilay version mandeha.
 
-            --cyan: #00e5ff;
-            --blue: #1677ff;
-            --green: #27e68a;
-            --gold: #ffc857;
-            --red: #ff4d6d;
+Aza apetraka eto mihitsy ny sb_secret_...
+*/
 
-            --radius: 18px;
-        }
+const SUPABASE_KEY =
+    "sb_publishable_iaxxz6gFjhMdR5tTZGZMOg_CiSibohE";
 
-        html {
-            scroll-behavior: smooth;
-        }
 
-        body {
-            min-height: 100vh;
-            font-family:
-                Inter,
-                Segoe UI,
-                Arial,
-                sans-serif;
+if (
+    !window.supabase ||
+    typeof window.supabase.createClient !== "function"
+) {
+    console.error(
+        "Supabase library not loaded."
+    );
 
-            color: var(--text);
+    alert(
+        "Supabase library tsy tafiditra. Jereo ny CDN ao amin'ny index.html."
+    );
 
-            background:
-                radial-gradient(
-                    circle at 15% 10%,
-                    rgba(0,229,255,0.10),
-                    transparent 28%
-                ),
-                radial-gradient(
-                    circle at 85% 15%,
-                    rgba(22,119,255,0.10),
-                    transparent 28%
-                ),
-                linear-gradient(
-                    180deg,
-                    #05070b 0%,
-                    #070b12 45%,
-                    #040609 100%
-                );
+    throw new Error(
+        "Supabase library missing"
+    );
+}
 
-            overflow-x: hidden;
-        }
 
-        button,
-        input,
-        select,
-        textarea {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        /* =====================================================
-           TOP BAR
-        ===================================================== */
-
-        .topbar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-
-            height: 72px;
-
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding: 0 6%;
-
-            background: rgba(5,7,11,0.78);
-            backdrop-filter: blur(18px);
-
-            border-bottom: 1px solid var(--line);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            font-size: 21px;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .brand-mark {
-            width: 42px;
-            height: 42px;
-
-            display: grid;
-            place-items: center;
-
-            border-radius: 12px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--cyan),
-                    var(--blue)
-                );
-
-            color: #001014;
-
-            font-weight: 1000;
-
-            box-shadow:
-                0 0 25px rgba(0,229,255,0.25);
-        }
-
-        .brand span {
-            background:
-                linear-gradient(
-                    90deg,
-                    #fff,
-                    var(--cyan),
-                    #fff
-                );
-
-            background-size: 220% auto;
-
-            -webkit-background-clip: text;
-            background-clip: text;
-
-            color: transparent;
-
-            animation: shine 4s linear infinite;
-        }
-
-        @keyframes shine {
-            to {
-                background-position: 220% center;
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
             }
         }
+    );
 
-        .topnav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+
+console.log(
+    "Supabase URL:",
+    SUPABASE_URL
+);
+
+
+/* =======================================================
+   SHORTCUT
+======================================================= */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+/* =======================================================
+   GLOBAL STATE
+======================================================= */
+
+let currentUser = null;
+
+let allProjects = [];
+
+let currentModalProject = null;
+
+
+/* =======================================================
+   DOM
+======================================================= */
+
+const loginPanel =
+    $("loginPanel");
+
+const loginForm =
+    $("loginForm");
+
+const emailInput =
+    $("email");
+
+const passwordInput =
+    $("password");
+
+const loginBtn =
+    $("loginBtn");
+
+const loginMessage =
+    $("loginMessage");
+
+const dashboard =
+    $("dashboard");
+
+const adminEmail =
+    $("adminEmail");
+
+const logoutBtn =
+    $("logoutBtn");
+
+const statusDot =
+    $("statusDot");
+
+const connectionStatus =
+    $("connectionStatus");
+
+const projectCount =
+    $("projectCount");
+
+const paidCount =
+    $("paidCount");
+
+const databaseStatus =
+    $("databaseStatus");
+
+const uploadForm =
+    $("uploadForm");
+
+const projectTitle =
+    $("projectTitle");
+
+const projectDescription =
+    $("projectDescription");
+
+const projectCategory =
+    $("projectCategory");
+
+const projectAccess =
+    $("projectAccess");
+
+const projectPrice =
+    $("projectPrice");
+
+const priceGroup =
+    $("priceGroup");
+
+const projectFile =
+    $("projectFile");
+
+const uploadBtn =
+    $("uploadBtn");
+
+const uploadProgress =
+    $("uploadProgress");
+
+const uploadStatus =
+    $("uploadStatus");
+
+const adminProjects =
+    $("adminProjects");
+
+const searchInput =
+    $("searchInput");
+
+const categoryFilter =
+    $("categoryFilter");
+
+const accessFilter =
+    $("accessFilter");
+
+const projectsGrid =
+    $("projectsGrid");
+
+const modal =
+    $("modal");
+
+const closeModal =
+    $("closeModal");
+
+const modalCategory =
+    $("modalCategory");
+
+const modalTitle =
+    $("modalTitle");
+
+const modalDescription =
+    $("modalDescription");
+
+const modalPrice =
+    $("modalPrice");
+
+const modalDownload =
+    $("modalDownload");
+
+const year =
+    $("year");
+
+
+/* =======================================================
+   YEAR
+======================================================= */
+
+if (year) {
+    year.textContent =
+        new Date().getFullYear();
+}
+
+
+/* =======================================================
+   INITIAL CHECK
+======================================================= */
+
+console.log(
+    "loginForm:",
+    !!loginForm
+);
+
+console.log(
+    "Supabase client:",
+    !!supabaseClient
+);
+
+
+/* =======================================================
+   HELPERS
+======================================================= */
+
+function escapeHTML(value) {
+
+    if (value === null ||
+        value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function normalizeAccess(project) {
+
+    return project &&
+        project.access_type === "paid"
+        ? "paid"
+        : "free";
+}
+
+
+function getPrice(project) {
+
+    const value =
+        Number(project?.price);
+
+    if (!Number.isFinite(value)) {
+        return 0;
+    }
+
+    return value;
+}
+
+
+function formatPrice(price) {
+
+    const value =
+        Number(price);
+
+    if (!Number.isFinite(value)) {
+        return "0.00";
+    }
+
+    return value.toFixed(2);
+}
+
+
+/*
+Change this if you want another currency.
+Example:
+"USD"
+"EUR"
+"MGA"
+*/
+
+const CURRENCY =
+    "USD";
+
+
+function formatMoney(price) {
+
+    const value =
+        Number(price);
+
+    if (!Number.isFinite(value)) {
+        return "0.00 " + CURRENCY;
+    }
+
+    return (
+        formatPrice(value)
+        + " "
+        + CURRENCY
+    );
+}
+
+
+function setStatus(
+    element,
+    message,
+    type = ""
+) {
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        message || "";
+
+    element.className =
+        "status";
+
+    if (type) {
+        element.classList.add(type);
+    }
+}
+
+
+/* =======================================================
+   ACCESS TYPE UI
+======================================================= */
+
+function updatePriceVisibility() {
+
+    if (!projectAccess ||
+        !priceGroup ||
+        !projectPrice) {
+        return;
+    }
+
+    const isPaid =
+        projectAccess.value === "paid";
+
+    if (isPaid) {
+
+        priceGroup.classList.remove(
+            "hidden"
+        );
+
+        projectPrice.disabled =
+            false;
+
+        projectPrice.required =
+            true;
+
+        if (
+            !projectPrice.value ||
+            Number(projectPrice.value) <= 0
+        ) {
+            projectPrice.value =
+                "5.00";
         }
 
-        .nav-btn {
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.03);
+    } else {
 
-            color: #dce7f5;
+        priceGroup.classList.add(
+            "hidden"
+        );
 
-            padding: 10px 15px;
+        projectPrice.disabled =
+            true;
 
-            border-radius: 10px;
+        projectPrice.required =
+            false;
 
-            transition: 0.2s;
+        projectPrice.value =
+            "0";
+    }
+}
+
+
+if (projectAccess) {
+
+    projectAccess.addEventListener(
+        "change",
+        updatePriceVisibility
+    );
+
+    updatePriceVisibility();
+}
+
+
+/* =======================================================
+   AUTH
+======================================================= */
+
+async function getCurrentUser() {
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient.auth.getUser();
+
+        if (error) {
+
+            console.warn(
+                "getUser error:",
+                error.message
+            );
+
+            return null;
         }
 
-        .nav-btn:hover {
-            border-color: var(--line2);
-            background: rgba(0,229,255,0.07);
-            color: white;
-        }
+        return data?.user || null;
 
-        /* =====================================================
-           HERO
-        ===================================================== */
+    } catch (error) {
 
-        .hero {
-            width: min(1180px, 92%);
-            margin: 0 auto;
+        console.error(
+            "getCurrentUser error:",
+            error
+        );
 
-            padding: 90px 0 60px;
+        return null;
+    }
+}
 
-            text-align: center;
-        }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+/* =======================================================
+   SHOW LOGIN
+======================================================= */
 
-            padding: 8px 13px;
+function showLogin() {
 
-            border: 1px solid rgba(0,229,255,0.18);
+    if (loginPanel) {
+        loginPanel.classList.remove(
+            "hidden"
+        );
+    }
 
-            border-radius: 999px;
+    if (dashboard) {
+        dashboard.classList.add(
+            "hidden"
+        );
+    }
 
-            background: rgba(0,229,255,0.05);
+    if (adminEmail) {
+        adminEmail.textContent =
+            "-";
+    }
+}
 
-            color: var(--cyan);
 
-            font-size: 12px;
-            font-weight: 800;
+/* =======================================================
+   SHOW DASHBOARD
+======================================================= */
 
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+function showDashboard(user) {
 
-        .hero h1 {
-            margin-top: 22px;
+    if (loginPanel) {
+        loginPanel.classList.add(
+            "hidden"
+        );
+    }
 
-            font-size: clamp(42px, 8vw, 92px);
+    if (dashboard) {
+        dashboard.classList.remove(
+            "hidden"
+        );
+    }
 
-            line-height: 0.95;
+    if (adminEmail) {
+        adminEmail.textContent =
+            user?.email || "";
+    }
+}
 
-            font-weight: 1000;
 
-            letter-spacing: -4px;
-        }
+/* =======================================================
+   LOGIN
+======================================================= */
 
-        .hero h1 strong {
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--cyan),
-                    #fff,
-                    var(--blue)
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            setStatus(
+                loginMessage,
+                "Signing in..."
+            );
+
+            if (loginBtn) {
+                loginBtn.disabled =
+                    true;
+
+                loginBtn.textContent =
+                    "LOGIN...";
+            }
+
+            const email =
+                emailInput?.value
+                    .trim() || "";
+
+            const password =
+                passwordInput?.value || "";
+
+
+            if (!email ||
+                !password) {
+
+                setStatus(
+                    loginMessage,
+                    "Email and password are required.",
+                    "error"
                 );
 
-            -webkit-background-clip: text;
-            background-clip: text;
+                if (loginBtn) {
+                    loginBtn.disabled =
+                        false;
 
-            color: transparent;
-        }
+                    loginBtn.textContent =
+                        "LOGIN";
+                }
 
-        .hero p {
-            max-width: 700px;
+                return;
+            }
 
-            margin: 25px auto 0;
 
-            color: var(--muted);
+            try {
 
-            font-size: 17px;
-            line-height: 1.7;
-        }
+                const {
+                    data,
+                    error
+                } =
+                    await supabaseClient.auth
+                        .signInWithPassword({
+                            email,
+                            password
+                        });
 
-        /* =====================================================
-           SEARCH
-        ===================================================== */
 
-        .library {
-            width: min(1180px, 92%);
-            margin: auto;
-        }
+                if (error) {
 
-        .toolbar {
-            display: grid;
-            grid-template-columns: 1fr 200px 160px;
-            gap: 12px;
+                    console.error(
+                        "LOGIN ERROR:",
+                        error
+                    );
 
-            margin-bottom: 25px;
-        }
+                    setStatus(
+                        loginMessage,
+                        error.message,
+                        "error"
+                    );
 
-        .input,
-        .select,
-        .textarea {
-            width: 100%;
+                    return;
+                }
 
-            border: 1px solid var(--line);
 
-            outline: none;
+                currentUser =
+                    data?.user || null;
 
-            border-radius: 12px;
 
-            background: rgba(255,255,255,0.035);
-
-            color: white;
-
-            padding: 13px 15px;
-
-            transition: 0.2s;
-        }
-
-        .input:focus,
-        .select:focus,
-        .textarea:focus {
-            border-color: rgba(0,229,255,0.45);
-
-            box-shadow:
-                0 0 0 3px rgba(0,229,255,0.06);
-        }
-
-        .select option {
-            background: #101722;
-            color: white;
-        }
-
-        /* =====================================================
-           PROJECT GRID
-        ===================================================== */
-
-        .projects-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(
-                    auto-fill,
-                    minmax(260px, 1fr)
+                setStatus(
+                    loginMessage,
+                    "Login successful.",
+                    "success"
                 );
 
-            gap: 18px;
 
-            padding-bottom: 80px;
-        }
-
-        .project-card {
-            position: relative;
-
-            min-height: 270px;
-
-            display: flex;
-            flex-direction: column;
-
-            overflow: hidden;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.08);
-
-            border-radius: var(--radius);
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(17,25,39,0.95),
-                    rgba(8,12,18,0.96)
+                showDashboard(
+                    currentUser
                 );
 
-            box-shadow:
-                0 18px 60px rgba(0,0,0,0.25);
 
-            transition:
-                transform 0.25s,
-                border-color 0.25s,
-                box-shadow 0.25s;
-        }
+                await loadProjects();
 
-        .project-card:hover {
-            transform: translateY(-5px);
+                await loadAdminProjects();
 
-            border-color:
-                rgba(0,229,255,0.28);
 
-            box-shadow:
-                0 20px 70px
-                rgba(0,0,0,0.45),
-                0 0 30px
-                rgba(0,229,255,0.05);
-        }
+            } catch (error) {
 
-        .card-top {
-            min-height: 115px;
-
-            padding: 20px;
-
-            background:
-                radial-gradient(
-                    circle at 80% 20%,
-                    rgba(0,229,255,0.10),
-                    transparent 35%
-                );
-        }
-
-        .badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-
-            margin-bottom: 15px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-
-            padding: 6px 9px;
-
-            border-radius: 999px;
-
-            font-size: 10px;
-            font-weight: 900;
-
-            letter-spacing: 0.7px;
-
-            text-transform: uppercase;
-        }
-
-        .badge-category {
-            background: rgba(255,255,255,0.06);
-            color: #b9c6d8;
-        }
-
-        .badge-free {
-            background: rgba(39,230,138,0.12);
-            color: var(--green);
-
-            border: 1px solid
-                rgba(39,230,138,0.18);
-        }
-
-        .badge-paid {
-            background: rgba(255,200,87,0.12);
-            color: var(--gold);
-
-            border: 1px solid
-                rgba(255,200,87,0.20);
-        }
-
-        .project-card h3 {
-            font-size: 20px;
-            line-height: 1.2;
-        }
-
-        .card-body {
-            flex: 1;
-
-            padding: 0 20px 20px;
-        }
-
-        .project-description {
-            color: var(--muted);
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-
-            overflow: hidden;
-        }
-
-        .price {
-            margin-top: 14px;
-
-            font-size: 21px;
-            font-weight: 1000;
-        }
-
-        .price.free {
-            color: var(--green);
-        }
-
-        .price.paid {
-            color: var(--gold);
-        }
-
-        .card-footer {
-            display: flex;
-            gap: 8px;
-
-            padding: 15px 20px;
-
-            border-top: 1px solid var(--line);
-        }
-
-        .btn {
-            border: 0;
-
-            border-radius: 10px;
-
-            padding: 11px 14px;
-
-            font-weight: 800;
-
-            transition: 0.2s;
-        }
-
-        .btn-primary {
-            flex: 1;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--cyan),
-                    var(--blue)
+                console.error(
+                    "LOGIN EXCEPTION:",
+                    error
                 );
 
-            color: #001014;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-
-            box-shadow:
-                0 8px 25px
-                rgba(0,229,255,0.18);
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.05);
-            color: white;
-
-            border: 1px solid var(--line);
-        }
-
-        .btn-danger {
-            background: rgba(255,77,109,0.10);
-            color: #ff7189;
-
-            border: 1px solid
-                rgba(255,77,109,0.18);
-        }
-
-        /* =====================================================
-           EMPTY
-        ===================================================== */
-
-        .empty {
-            grid-column: 1 / -1;
-
-            padding: 70px 20px;
-
-            text-align: center;
-
-            border: 1px dashed var(--line);
-
-            border-radius: var(--radius);
-
-            color: var(--muted);
-        }
-
-        .empty-icon {
-            font-size: 42px;
-            margin-bottom: 15px;
-        }
-
-        /* =====================================================
-           ADMIN
-        ===================================================== */
-
-        .admin-section {
-            width: min(1180px, 92%);
-
-            margin: 30px auto 100px;
-        }
-
-        .section-title {
-            margin-bottom: 20px;
-        }
-
-        .section-title h2 {
-            font-size: 27px;
-        }
-
-        .section-title p {
-            color: var(--muted);
-            margin-top: 5px;
-        }
-
-        .admin-card {
-            border:
-                1px solid var(--line);
-
-            border-radius: var(--radius);
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(13,19,30,0.92),
-                    rgba(8,12,18,0.96)
+                setStatus(
+                    loginMessage,
+                    error.message ||
+                    "Login failed.",
+                    "error"
                 );
 
-            padding: 25px;
+            } finally {
 
-            box-shadow:
-                0 20px 80px
-                rgba(0,0,0,0.25);
+                if (loginBtn) {
+
+                    loginBtn.disabled =
+                        false;
+
+                    loginBtn.textContent =
+                        "LOGIN";
+                }
+            }
         }
+    );
+}
 
-        #loginPanel {
-            max-width: 520px;
-            margin: 0 auto;
+
+/* =======================================================
+   LOGOUT
+======================================================= */
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener(
+        "click",
+        async function() {
+
+            try {
+
+                await supabaseClient.auth.signOut();
+
+                currentUser =
+                    null;
+
+                showLogin();
+
+                if (loginMessage) {
+                    setStatus(
+                        loginMessage,
+                        "Logged out.",
+                        "success"
+                    );
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "LOGOUT ERROR:",
+                    error
+                );
+            }
         }
+    );
+}
 
-        .admin-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
 
-            gap: 15px;
+/* =======================================================
+   AUTH STATE
+======================================================= */
 
-            margin-bottom: 25px;
+supabaseClient.auth.onAuthStateChange(
+    async function(event, session) {
+
+        console.log(
+            "AUTH EVENT:",
+            event
+        );
+
+
+        currentUser =
+            session?.user || null;
+
+
+        if (currentUser) {
+
+            showDashboard(
+                currentUser
+            );
+
+            await loadAdminProjects();
+
+        } else {
+
+            showLogin();
         }
+    }
+);
 
-        .admin-user {
-            color: var(--cyan);
-            font-size: 13px;
-        }
 
-        .form-grid {
-            display: grid;
+/* =======================================================
+   LOAD PUBLIC PROJECTS
+======================================================= */
 
-            grid-template-columns:
-                repeat(2, minmax(0,1fr));
+async function loadProjects() {
 
-            gap: 15px;
-        }
+    console.log(
+        "Loading projects..."
+    );
 
-        .form-group {
-            margin-bottom: 15px;
-        }
 
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
+    if (databaseStatus) {
 
-        .form-group label {
-            display: block;
+        databaseStatus.textContent =
+            "Loading...";
 
-            margin-bottom: 7px;
+        databaseStatus.style.color =
+            "";
+    }
 
-            color: #aebbd0;
 
-            font-size: 12px;
-            font-weight: 800;
-        }
+    try {
 
-        .textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-
-        .upload-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            margin-top: 5px;
-        }
-
-        .progress {
-            flex: 1;
-
-            height: 8px;
-
-            overflow: hidden;
-
-            border-radius: 999px;
-
-            background: rgba(255,255,255,0.06);
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--cyan),
-                    var(--blue)
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("projects")
+                .select(
+                    "id,title,description,category,file_url,file_name,owner_id,created_at,access_type,price"
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
                 );
 
-            transition: width 0.2s;
+
+        if (error) {
+
+            console.error(
+                "PROJECT LOAD ERROR:",
+                error
+            );
+
+            allProjects = [];
+
+            renderProjects();
+
+            if (databaseStatus) {
+
+                databaseStatus.textContent =
+                    "ERROR";
+
+                databaseStatus.style.color =
+                    "#ff7189";
+            }
+
+            return;
         }
 
-        .status {
-            margin-top: 12px;
 
-            min-height: 20px;
+        allProjects =
+            Array.isArray(data)
+                ? data
+                : [];
 
-            color: var(--muted);
 
-            font-size: 13px;
+        console.log(
+            "Projects loaded:",
+            allProjects
+        );
+
+
+        if (databaseStatus) {
+
+            databaseStatus.textContent =
+                "OK";
+
+            databaseStatus.style.color =
+                "var(--green)";
         }
 
-        .status.success {
-            color: var(--green);
+
+        updateStats();
+
+        renderProjects();
+
+
+    } catch (error) {
+
+        console.error(
+            "LOAD PROJECTS EXCEPTION:",
+            error
+        );
+
+        allProjects = [];
+
+        renderProjects();
+
+        if (databaseStatus) {
+
+            databaseStatus.textContent =
+                "ERROR";
+
+            databaseStatus.style.color =
+                "#ff7189";
         }
+    }
+}
 
-        .status.error {
-            color: #ff7189;
-        }
 
-        .hidden {
-            display: none !important;
-        }
+/* =======================================================
+   UPDATE STATS
+======================================================= */
 
-        /* =====================================================
-           STATS
-        ===================================================== */
+function updateStats() {
 
-        .stats {
-            display: grid;
+    const total =
+        allProjects.length;
 
-            grid-template-columns:
-                repeat(4, 1fr);
 
-            gap: 12px;
+    const paid =
+        allProjects.filter(
+            project =>
+                normalizeAccess(project)
+                === "paid"
+        ).length;
 
-            margin-bottom: 20px;
-        }
 
-        .stat {
-            padding: 17px;
+    if (projectCount) {
+        projectCount.textContent =
+            total;
+    }
 
-            border:
-                1px solid var(--line);
 
-            border-radius: 14px;
+    if (paidCount) {
+        paidCount.textContent =
+            paid;
+    }
 
-            background:
-                rgba(255,255,255,0.025);
-        }
 
-        .stat-label {
-            color: var(--muted);
+    if (connectionStatus) {
+        connectionStatus.textContent =
+            "Online";
+    }
 
-            font-size: 11px;
 
-            text-transform: uppercase;
+    if (statusDot) {
+        statusDot.style.background =
+            "var(--green)";
+    }
+}
 
-            letter-spacing: 0.7px;
-        }
 
-        .stat-value {
-            margin-top: 7px;
+/* =======================================================
+   FILTER
+======================================================= */
 
-            font-size: 24px;
+function getFilteredProjects() {
 
-            font-weight: 1000;
-        }
+    const search =
+        (
+            searchInput?.value || ""
+        )
+        .trim()
+        .toLowerCase();
 
-        .dot {
-            display: inline-block;
 
-            width: 8px;
-            height: 8px;
+    const category =
+        categoryFilter?.value ||
+        "all";
 
-            margin-right: 6px;
 
-            border-radius: 50%;
+    const access =
+        accessFilter?.value ||
+        "all";
 
-            background: var(--green);
 
-            box-shadow:
-                0 0 10px
-                rgba(39,230,138,0.5);
-        }
+    return allProjects.filter(
+        project => {
 
-        /* =====================================================
-           MODAL
-        ===================================================== */
+            const title =
+                String(
+                    project.title || ""
+                ).toLowerCase();
 
-        .modal {
-            position: fixed;
 
-            inset: 0;
+            const description =
+                String(
+                    project.description || ""
+                ).toLowerCase();
 
-            z-index: 1000;
 
-            display: none;
-
-            align-items: center;
-            justify-content: center;
-
-            padding: 20px;
-
-            background:
-                rgba(0,0,0,0.78);
-
-            backdrop-filter: blur(10px);
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-box {
-            width: min(650px, 100%);
-
-            max-height: 90vh;
-
-            overflow-y: auto;
-
-            border:
-                1px solid
-                rgba(0,229,255,0.18);
-
-            border-radius: 20px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #101824,
-                    #070b11
+            const projectCategory =
+                String(
+                    project.category || "Other"
                 );
 
-            box-shadow:
-                0 30px 100px
-                rgba(0,0,0,0.55);
 
-            padding: 28px;
+            const projectAccess =
+                normalizeAccess(
+                    project
+                );
+
+
+            const matchesSearch =
+                !search ||
+                title.includes(search) ||
+                description.includes(search);
+
+
+            const matchesCategory =
+                category === "all" ||
+                projectCategory === category;
+
+
+            const matchesAccess =
+                access === "all" ||
+                projectAccess === access;
+
+
+            return (
+                matchesSearch &&
+                matchesCategory &&
+                matchesAccess
+            );
         }
+    );
+}
 
-        .modal-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
 
-            gap: 20px;
+/* =======================================================
+   SEARCH EVENTS
+======================================================= */
 
-            margin-bottom: 20px;
-        }
+if (searchInput) {
 
-        .close {
-            width: 38px;
-            height: 38px;
+    searchInput.addEventListener(
+        "input",
+        renderProjects
+    );
+}
 
-            border: 1px solid var(--line);
 
-            border-radius: 10px;
+if (categoryFilter) {
 
-            background: rgba(255,255,255,0.05);
+    categoryFilter.addEventListener(
+        "change",
+        renderProjects
+    );
+}
 
-            color: white;
 
-            font-size: 18px;
-        }
+if (accessFilter) {
 
-        .modal-description {
-            color: var(--muted);
+    accessFilter.addEventListener(
+        "change",
+        renderProjects
+    );
+}
 
-            line-height: 1.7;
 
-            white-space: pre-wrap;
-        }
+/* =======================================================
+   RENDER PUBLIC PROJECTS
+======================================================= */
 
-        .modal-price {
-            margin-top: 20px;
+function renderProjects() {
 
-            font-size: 28px;
+    if (!projectsGrid) {
+        return;
+    }
 
-            font-weight: 1000;
-        }
 
-        .modal-download {
-            width: 100%;
+    const projects =
+        getFilteredProjects();
 
-            margin-top: 20px;
-        }
 
-        /* =====================================================
-           FOOTER
-        ===================================================== */
+    if (!projects.length) {
 
-        footer {
-            padding: 35px 20px;
+        projectsGrid.innerHTML = `
+            <div class="empty">
 
-            text-align: center;
-
-            color: #5e6a7c;
-
-            border-top: 1px solid var(--line);
-
-            font-size: 12px;
-        }
-
-        /* =====================================================
-           MOBILE
-        ===================================================== */
-
-        @media (max-width: 850px) {
-            .toolbar {
-                grid-template-columns: 1fr;
-            }
-
-            .stats {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full {
-                grid-column: auto;
-            }
-
-            .topnav {
-                display: none;
-            }
-        }
-
-        @media (max-width: 520px) {
-            .hero {
-                padding-top: 60px;
-            }
-
-            .hero h1 {
-                letter-spacing: -2px;
-            }
-
-            .stats {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .admin-card {
-                padding: 18px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<!-- =========================================================
-     NAVIGATION
-========================================================= -->
-
-<header class="topbar">
-
-    <a
-        href="#home"
-        class="brand"
-    >
-        <div class="brand-mark">
-            M3
-        </div>
-
-        <span>MAH3D</span>
-    </a>
-
-    <nav class="topnav">
-
-        <a
-            href="#library"
-            class="nav-btn"
-        >
-            Library
-        </a>
-
-        <a
-            href="#admin"
-            class="nav-btn"
-        >
-            Admin
-        </a>
-
-    </nav>
-
-</header>
-
-
-<!-- =========================================================
-     HERO
-========================================================= -->
-
-<section
-    class="hero"
-    id="home"
->
-
-    <div class="hero-badge">
-        ⚡ MAH3D DIGITAL LIBRARY
-    </div>
-
-    <h1>
-        Build.
-        <strong>Download.</strong>
-        Create.
-    </h1>
-
-    <p>
-        Premium 3D models, mods and digital projects
-        created for the MAH3D community.
-    </p>
-
-</section>
-
-
-<!-- =========================================================
-     LIBRARY
-========================================================= -->
-
-<main
-    class="library"
-    id="library"
->
-
-    <div class="toolbar">
-
-        <input
-            id="searchInput"
-            class="input"
-            type="search"
-            placeholder="🔎 Search projects..."
-            autocomplete="off"
-        >
-
-        <select
-            id="categoryFilter"
-            class="select"
-        >
-            <option value="all">
-                All Categories
-            </option>
-
-            <option value="3D">
-                3D
-            </option>
-
-            <option value="BUSSID">
-                BUSSID
-            </option>
-
-            <option value="ETS2">
-                ETS2
-            </option>
-
-            <option value="Blender">
-                Blender
-            </option>
-
-            <option value="Mods">
-                Mods
-            </option>
-
-            <option value="Other">
-                Other
-            </option>
-        </select>
-
-        <select
-            id="accessFilter"
-            class="select"
-        >
-            <option value="all">
-                All Models
-            </option>
-
-            <option value="free">
-                🟢 Free
-            </option>
-
-            <option value="paid">
-                💎 Paid
-            </option>
-        </select>
-
-    </div>
-
-
-    <div
-        id="projectsGrid"
-        class="projects-grid"
-    >
-
-        <div class="empty">
-
-            <div class="empty-icon">
-                ⏳
-            </div>
-
-            <div>
-                Loading projects...
-            </div>
-
-        </div>
-
-    </div>
-
-</main>
-
-
-<!-- =========================================================
-     ADMIN
-========================================================= -->
-
-<section
-    class="admin-section"
-    id="admin"
->
-
-    <div class="section-title">
-
-        <h2>
-            MAH3D Admin
-        </h2>
-
-        <p>
-            Manage your digital project library.
-        </p>
-
-    </div>
-
-
-    <!-- LOGIN -->
-
-    <div
-        id="loginPanel"
-        class="admin-card"
-    >
-
-        <h3>
-            🔐 Administrator Login
-        </h3>
-
-        <p
-            style="
-                color:var(--muted);
-                margin:8px 0 20px;
-                font-size:13px;
-            "
-        >
-            Sign in to upload and manage projects.
-        </p>
-
-        <form id="loginForm">
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    id="email"
-                    class="input"
-                    type="email"
-                    required
-                    autocomplete="username"
-                    placeholder="admin@email.com"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    id="password"
-                    class="input"
-                    type="password"
-                    required
-                    autocomplete="current-password"
-                    placeholder="••••••••"
-                >
-
-            </div>
-
-
-            <button
-                id="loginBtn"
-                class="btn btn-primary"
-                type="submit"
-                style="width:100%;"
-            >
-                LOGIN
-            </button>
-
-            <div
-                id="loginMessage"
-                class="status"
-            ></div>
-
-        </form>
-
-    </div>
-
-
-    <!-- DASHBOARD -->
-
-    <div
-        id="dashboard"
-        class="hidden"
-    >
-
-        <div class="admin-card">
-
-            <div class="admin-header">
-
-                <div>
-
-                    <h3>
-                        ⚡ Dashboard
-                    </h3>
-
-                    <div
-                        id="adminEmail"
-                        class="admin-user"
-                    >
-                        -
-                    </div>
-
+                <div class="empty-icon">
+                    📦
                 </div>
 
+                <div>
+                    No projects found.
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    projectsGrid.innerHTML =
+        projects
+            .map(
+                project =>
+                    createProjectCard(
+                        project,
+                        false
+                    )
+            )
+            .join("");
+}
+
+
+/* =======================================================
+   PROJECT CARD
+======================================================= */
+
+function createProjectCard(
+    project,
+    isAdmin = false
+) {
+
+    const access =
+        normalizeAccess(
+            project
+        );
+
+
+    const price =
+        getPrice(project);
+
+
+    const category =
+        escapeHTML(
+            project.category ||
+            "Other"
+        );
+
+
+    const title =
+        escapeHTML(
+            project.title ||
+            "Untitled Project"
+        );
+
+
+    const description =
+        escapeHTML(
+            project.description ||
+            "No description."
+        );
+
+
+    const fileName =
+        escapeHTML(
+            project.file_name ||
+            ""
+        );
+
+
+    let accessBadge = "";
+
+    let priceHTML = "";
+
+
+    if (access === "paid") {
+
+        accessBadge = `
+            <span class="badge badge-paid">
+                💎 PAID
+            </span>
+        `;
+
+        priceHTML = `
+            <div class="price paid">
+                ${escapeHTML(
+                    formatMoney(price)
+                )}
+            </div>
+        `;
+
+    } else {
+
+        accessBadge = `
+            <span class="badge badge-free">
+                🟢 FREE
+            </span>
+        `;
+
+        priceHTML = `
+            <div class="price free">
+                FREE
+            </div>
+        `;
+    }
+
+
+    let footer = "";
+
+
+    if (isAdmin) {
+
+        footer = `
+            <div class="card-footer">
+
                 <button
-                    id="logoutBtn"
                     class="btn btn-secondary"
                     type="button"
+                    onclick="openProjectModal('${project.id}')"
                 >
-                    Logout
+                    View
+                </button>
+
+                <button
+                    class="btn btn-danger"
+                    type="button"
+                    onclick="deleteProject('${project.id}')"
+                >
+                    Delete
                 </button>
 
             </div>
+        `;
 
+    } else {
 
-            <!-- STATS -->
+        footer = `
+            <div class="card-footer">
 
-            <div class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Projects
-                    </div>
-
-                    <div
-                        id="projectCount"
-                        class="stat-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Database
-                    </div>
-
-                    <div
-                        id="databaseStatus"
-                        class="stat-value"
-                        style="font-size:16px;"
-                    >
-                        Checking...
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Connection
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        style="font-size:16px;"
-                    >
-
-                        <span
-                            id="statusDot"
-                            class="dot"
-                        ></span>
-
-                        <span id="connectionStatus">
-                            Online
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Paid Models
-                    </div>
-
-                    <div
-                        id="paidCount"
-                        class="stat-value"
-                    >
-                        0
-                    </div>
-
-                </div>
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    onclick="openProjectModal('${project.id}')"
+                >
+                    ${
+                        access === "paid"
+                            ? "💎 VIEW PAID MODEL"
+                            : "⬇ VIEW / DOWNLOAD"
+                    }
+                </button>
 
             </div>
+        `;
+    }
 
 
-            <!-- UPLOAD -->
+    return `
+        <article
+            class="project-card"
+        >
 
-            <div
-                class="admin-card"
-                style="
-                    margin-bottom:20px;
-                    padding:20px;
-                "
-            >
+            <div class="card-top">
 
-                <h3
-                    style="
-                        margin-bottom:18px;
-                    "
-                >
-                    📤 Upload Project
+                <div class="badges">
+
+                    <span class="badge badge-category">
+                        ${category}
+                    </span>
+
+                    ${accessBadge}
+
+                </div>
+
+                <h3>
+                    ${title}
                 </h3>
 
-
-                <form id="uploadForm">
-
-                    <div class="form-grid">
-
-                        <div class="form-group">
-
-                            <label for="projectTitle">
-                                Project Title
-                            </label>
-
-                            <input
-                                id="projectTitle"
-                                class="input"
-                                type="text"
-                                required
-                                placeholder="Mercedes Sprinter"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="projectCategory">
-                                Category
-                            </label>
-
-                            <select
-                                id="projectCategory"
-                                class="select"
-                            >
-
-                                <option value="3D">
-                                    3D
-                                </option>
-
-                                <option value="BUSSID">
-                                    BUSSID
-                                </option>
-
-                                <option value="ETS2">
-                                    ETS2
-                                </option>
-
-                                <option value="Blender">
-                                    Blender
-                                </option>
-
-                                <option value="Mods">
-                                    Mods
-                                </option>
-
-                                <option value="Other">
-                                    Other
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="projectAccess">
-                                Access Type
-                            </label>
-
-                            <select
-                                id="projectAccess"
-                                class="select"
-                            >
-
-                                <option value="free">
-                                    🟢 FREE
-                                </option>
-
-                                <option value="paid">
-                                    💎 PAID
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div
-                            class="form-group"
-                            id="priceGroup"
-                        >
-
-                            <label for="projectPrice">
-                                Price
-                            </label>
-
-                            <input
-                                id="projectPrice"
-                                class="input"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value="0"
-                                placeholder="5.00"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="projectDescription">
-                                Description
-                            </label>
-
-                            <textarea
-                                id="projectDescription"
-                                class="textarea"
-                                placeholder="Describe your project..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="projectFile">
-                                Project File
-                            </label>
-
-                            <input
-                                id="projectFile"
-                                class="input"
-                                type="file"
-                                required
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="upload-actions">
-
-                        <button
-                            id="uploadBtn"
-                            class="btn btn-primary"
-                            type="submit"
-                        >
-                            🚀 UPLOAD PROJECT
-                        </button>
-
-                        <div class="progress">
-
-                            <div
-                                id="uploadProgress"
-                                class="progress-bar"
-                            ></div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="uploadStatus"
-                        class="status"
-                    ></div>
-
-                </form>
-
             </div>
 
 
-            <!-- ADMIN PROJECTS -->
+            <div class="card-body">
 
-            <div
-                class="admin-card"
-                style="padding:20px;"
-            >
+                <p class="project-description">
+                    ${description}
+                </p>
 
-                <div class="admin-header">
+                ${priceHTML}
+
+                ${
+                    fileName
+                    ? `
+                        <div
+                            style="
+                                margin-top:10px;
+                                color:#637086;
+                                font-size:11px;
+                            "
+                        >
+                            📁 ${fileName}
+                        </div>
+                    `
+                    : ""
+                }
+
+            </div>
+
+            ${footer}
+
+        </article>
+    `;
+}
+
+
+/* =======================================================
+   OPEN PROJECT MODAL
+======================================================= */
+
+window.openProjectModal =
+    function(projectId) {
+
+        const project =
+            allProjects.find(
+                item =>
+                    String(item.id)
+                    === String(projectId)
+            );
+
+
+        if (!project) {
+
+            console.error(
+                "Project not found:",
+                projectId
+            );
+
+            return;
+        }
+
+
+        currentModalProject =
+            project;
+
+
+        const access =
+            normalizeAccess(
+                project
+            );
+
+
+        const price =
+            getPrice(project);
+
+
+        if (modalCategory) {
+
+            modalCategory.innerHTML = `
+
+                <span class="badge badge-category">
+                    ${escapeHTML(
+                        project.category ||
+                        "Other"
+                    )}
+                </span>
+
+                ${
+                    access === "paid"
+
+                    ? `
+                        <span class="badge badge-paid">
+                            💎 PAID
+                        </span>
+                    `
+
+                    : `
+                        <span class="badge badge-free">
+                            🟢 FREE
+                        </span>
+                    `
+                }
+
+            `;
+        }
+
+
+        if (modalTitle) {
+
+            modalTitle.textContent =
+                project.title ||
+                "Untitled Project";
+        }
+
+
+        if (modalDescription) {
+
+            modalDescription.textContent =
+                project.description ||
+                "No description.";
+        }
+
+
+        if (modalPrice) {
+
+            if (access === "paid") {
+
+                modalPrice.textContent =
+                    formatMoney(price);
+
+                modalPrice.style.color =
+                    "var(--gold)";
+
+            } else {
+
+                modalPrice.textContent =
+                    "FREE";
+
+                modalPrice.style.color =
+                    "var(--green)";
+            }
+        }
+
+
+        if (modalDownload) {
+
+            modalDownload.href =
+                project.file_url || "#";
+
+
+            if (access === "paid") {
+
+                modalDownload.textContent =
+                    "💎 DOWNLOAD / PURCHASE";
+
+            } else {
+
+                modalDownload.textContent =
+                    "⬇ DOWNLOAD FREE";
+
+            }
+        }
+
+
+        if (modal) {
+
+            modal.classList.add(
+                "show"
+            );
+        }
+    };
+
+
+/* =======================================================
+   CLOSE MODAL
+======================================================= */
+
+function closeProjectModal() {
+
+    if (modal) {
+
+        modal.classList.remove(
+            "show"
+        );
+    }
+
+    currentModalProject =
+        null;
+}
+
+
+if (closeModal) {
+
+    closeModal.addEventListener(
+        "click",
+        closeProjectModal
+    );
+}
+
+
+if (modal) {
+
+    modal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === modal
+            ) {
+                closeProjectModal();
+            }
+        }
+    );
+}
+
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closeProjectModal();
+        }
+    }
+);
+
+
+/* =======================================================
+   LOAD ADMIN PROJECTS
+======================================================= */
+
+async function loadAdminProjects() {
+
+    if (!adminProjects) {
+        return;
+    }
+
+
+    const user =
+        currentUser ||
+        await getCurrentUser();
+
+
+    if (!user) {
+
+        adminProjects.innerHTML =
+            "";
+
+        return;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("projects")
+                .select(
+                    "id,title,description,category,file_url,file_name,owner_id,created_at,access_type,price"
+                )
+                .eq(
+                    "owner_id",
+                    user.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+
+
+        if (error) {
+
+            console.error(
+                "ADMIN PROJECT ERROR:",
+                error
+            );
+
+            adminProjects.innerHTML = `
+                <div class="empty">
+                    ${escapeHTML(
+                        error.message
+                    )}
+                </div>
+            `;
+
+            return;
+        }
+
+
+        if (!data ||
+            !data.length) {
+
+            adminProjects.innerHTML = `
+                <div class="empty">
+                    <div class="empty-icon">
+                        📦
+                    </div>
 
                     <div>
-
-                        <h3>
-                            📦 Your Projects
-                        </h3>
-
+                        No projects uploaded yet.
                     </div>
-
                 </div>
+            `;
 
-                <div
-                    id="adminProjects"
-                    class="projects-grid"
-                    style="padding-bottom:0;"
-                ></div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
+            return;
+        }
 
 
-<!-- =========================================================
-     MODAL
-========================================================= -->
-
-<div
-    id="modal"
-    class="modal"
->
-
-    <div class="modal-box">
-
-        <div class="modal-header">
-
-            <div>
-
-                <div
-                    id="modalCategory"
-                    class="badges"
-                ></div>
-
-                <h2 id="modalTitle">
-                    Project
-                </h2>
-
-            </div>
-
-            <button
-                id="closeModal"
-                class="close"
-                type="button"
-            >
-                ✕
-            </button>
-
-        </div>
+        adminProjects.innerHTML =
+            data
+                .map(
+                    project =>
+                        createProjectCard(
+                            project,
+                            true
+                        )
+                )
+                .join("");
 
 
-        <div
-            id="modalDescription"
-            class="modal-description"
-        ></div>
+    } catch (error) {
+
+        console.error(
+            "ADMIN PROJECT EXCEPTION:",
+            error
+        );
+    }
+}
 
 
-        <div
-            id="modalPrice"
-            class="modal-price"
-        ></div>
+/* =======================================================
+   FILE NAME
+======================================================= */
+
+function makeSafeFileName(
+    fileName
+) {
+
+    return fileName
+        .normalize("NFKD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
+        .replace(
+            /[^a-zA-Z0-9._-]/g,
+            "_"
+        );
+}
 
 
-        <a
-            id="modalDownload"
-            class="btn btn-primary modal-download"
-            href="#"
-            target="_blank"
-            rel="noopener"
-        >
-            DOWNLOAD
-        </a>
+/* =======================================================
+   UPLOAD
+======================================================= */
 
-    </div>
+if (uploadForm) {
 
-</div>
+    uploadForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
 
 
-<footer>
-
-    © <span id="year"></span> MAH3D.
-    All rights reserved.
-
-</footer>
+            const user =
+                currentUser ||
+                await getCurrentUser();
 
 
-<!-- =========================================================
-     SUPABASE
-========================================================= -->
+            if (!user) {
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+                setStatus(
+                    uploadStatus,
+                    "Tsy maintsy manao login aloha.",
+                    "error"
+                );
 
-<script src="./script.js"></script>
+                return;
+            }
 
-</body>
-</html>
+
+            const title =
+                projectTitle?.value
+                    .trim() || "";
+
+
+            const description =
+                projectDescription?.value
+                    .trim() || "";
+
+
+            const category =
+                projectCategory?.value ||
+                "Other";
+
+
+            const access =
+                projectAccess?.value ||
+                "free";
+
+
+            const file =
+                projectFile?.files?.[0];
+
+
+            let price =
+                0;
+
+
+            if (access === "paid") {
+
+                price =
+                    Number(
+                        projectPrice?.value ||
+                        0
+                    );
+
+
+                if (
+                    !Number.isFinite(price) ||
+                    price <= 0
+                ) {
+
+                    setStatus(
+                        uploadStatus,
+                        "Ampidiro ny vidiny ho an'ny PAID model.",
+                        "error"
+                    );
+
+                    return;
+                }
+            }
+
+
+            if (!title) {
+
+                setStatus(
+                    uploadStatus,
+                    "Ampidiro ny project title.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            if (!file) {
+
+                setStatus(
+                    uploadStatus,
+                    "Misafidiana fichier.",
+                    "error"
+                );
+
+                return;
+            }
+
+
+            /*
+            File size:
+            Supabase Storage limit depends
+            on your project configuration.
+            We don't impose an artificial small limit here.
+            */
+
+
+            if (uploadBtn) {
+
+                uploadBtn.disabled =
+                    true;
+
+                uploadBtn.textContent =
+                    "UPLOADING...";
+            }
+
+
+            if (uploadProgress) {
+                uploadProgress.style.width =
+                    "10%";
+            }
+
+
+            setStatus(
+                uploadStatus,
+                "Preparing upload..."
+            );
+
+
+            try {
+
+                /*
+                =============================================
+                CREATE UNIQUE STORAGE PATH
+                =============================================
+                */
+
+                const timestamp =
+                    Date.now();
+
+
+                const safeName =
+                    makeSafeFileName(
+                        file.name
+                    );
+
+
+                const storagePath =
+                    `${user.id}/${timestamp}_${safeName}`;
+
+
+                setStatus(
+                    uploadStatus,
+                    "Uploading file..."
+                );
+
+
+                if (uploadProgress) {
+                    uploadProgress.style.width =
+                        "35%";
+                }
+
+
+                /*
+                =============================================
+                STORAGE UPLOAD
+                =============================================
+                */
+
+                const {
+                    error:
+                        uploadError
+                } =
+                    await supabaseClient
+                        .storage
+                        .from("projects")
+                        .upload(
+                            storagePath,
+                            file,
+                            {
+                                cacheControl:
+                                    "3600",
+
+                                upsert:
+                                    false
+                            }
+                        );
+
+
+                if (uploadError) {
+
+                    console.error(
+                        "STORAGE UPLOAD ERROR:",
+                        uploadError
+                    );
+
+                    throw new Error(
+                        uploadError.message
+                    );
+                }
+
+
+                if (uploadProgress) {
+                    uploadProgress.style.width =
+                        "70%";
+                }
+
+
+                setStatus(
+                    uploadStatus,
+                    "Creating project record..."
+                );
+
+
+                /*
+                =============================================
+                PUBLIC URL
+                =============================================
+                */
+
+                const {
+                    data:
+                        publicUrlData
+                } =
+                    supabaseClient
+                        .storage
+                        .from("projects")
+                        .getPublicUrl(
+                            storagePath
+                        );
+
+
+                const fileUrl =
+                    publicUrlData?.publicUrl;
+
+
+                if (!fileUrl) {
+
+                    throw new Error(
+                        "Could not create public file URL."
+                    );
+                }
+
+
+                /*
+                =============================================
+                DATABASE INSERT
+                =============================================
+                */
+
+                const {
+                    error:
+                        databaseError
+                } =
+                    await supabaseClient
+                        .from("projects")
+                        .insert({
+                            title:
+                                title,
+
+                            description:
+                                description,
+
+                            category:
+                                category,
+
+                            file_url:
+                                fileUrl,
+
+                            file_name:
+                                file.name,
+
+                            owner_id:
+                                user.id,
+
+                            access_type:
+                                access,
+
+                            price:
+                                access === "paid"
+                                    ? price
+                                    : 0
+                        });
+
+
+                if (databaseError) {
+
+                    console.error(
+                        "DATABASE INSERT ERROR:",
+                        databaseError
+                    );
+
+
+                    /*
+                    If database insert fails,
+                    try deleting uploaded file
+                    so storage doesn't get orphaned.
+                    */
+
+                    try {
+
+                        await supabaseClient
+                            .storage
+                            .from("projects")
+                            .remove([
+                                storagePath
+                            ]);
+
+                    } catch (
+                        cleanupError
+                    ) {
+
+                        console.warn(
+                            "Cleanup failed:",
+                            cleanupError
+                        );
+                    }
+
+
+                    throw new Error(
+                        databaseError.message
+                    );
+                }
+
+
+                if (uploadProgress) {
+                    uploadProgress.style.width =
+                        "100%";
+                }
+
+
+                setStatus(
+                    uploadStatus,
+                    access === "paid"
+                        ? "💎 PAID model uploaded successfully!"
+                        : "🟢 FREE model uploaded successfully!",
+                    "success"
+                );
+
+
+                /*
+                Reset form
+                */
+
+                uploadForm.reset();
+
+
+                if (projectPrice) {
+                    projectPrice.value =
+                        "0";
+                }
+
+
+                if (projectAccess) {
+                    projectAccess.value =
+                        "free";
+                }
+
+
+                updatePriceVisibility();
+
+
+                /*
+                Reload everything
+                */
+
+                await loadProjects();
+
+                await loadAdminProjects();
+
+
+                /*
+                Reset progress after delay
+                */
+
+                setTimeout(
+                    function() {
+
+                        if (
+                            uploadProgress
+                        ) {
+                            uploadProgress.style.width =
+                                "0%";
+                        }
+
+                    },
+                    1200
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "UPLOAD ERROR:",
+                    error
+                );
+
+
+                setStatus(
+                    uploadStatus,
+                    "Upload failed: " +
+                    (
+                        error.message ||
+                        "Unknown error"
+                    ),
+                    "error"
+                );
+
+
+                if (uploadProgress) {
+                    uploadProgress.style.width =
+                        "0%";
+                }
+
+            } finally {
+
+                if (uploadBtn) {
+
+                    uploadBtn.disabled =
+                        false;
+
+                    uploadBtn.textContent =
+                        "🚀 UPLOAD PROJECT";
+                }
+            }
+        }
+    );
+}
+
+
+/* =======================================================
+   DELETE PROJECT
+======================================================= */
+
+window.deleteProject =
+    async function(projectId) {
+
+        const user =
+            currentUser ||
+            await getCurrentUser();
+
+
+        if (!user) {
+
+            alert(
+                "Login required."
+            );
+
+            return;
+        }
+
+
+        const project =
+            allProjects.find(
+                item =>
+                    String(item.id)
+                    === String(projectId)
+            );
+
+
+        if (!project) {
+
+            alert(
+                "Project not found."
+            );
+
+            return;
+        }
+
+
+        if (
+            String(project.owner_id)
+            !== String(user.id)
+        ) {
+
+            alert(
+                "You can only delete your own project."
+            );
+
+            return;
+        }
+
+
+        const confirmed =
+            window.confirm(
+                `Delete "${project.title}"?`
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            /*
+            =============================================
+            DELETE DATABASE RECORD FIRST
+            =============================================
+            */
+
+            const {
+                error:
+                    deleteError
+            } =
+                await supabaseClient
+                    .from("projects")
+                    .delete()
+                    .eq(
+                        "id",
+                        projectId
+                    )
+                    .eq(
+                        "owner_id",
+                        user.id
+                    );
+
+
+            if (deleteError) {
+
+                console.error(
+                    "DELETE DB ERROR:",
+                    deleteError
+                );
+
+                throw new Error(
+                    deleteError.message
+                );
+            }
+
+
+            /*
+            =============================================
+            TRY TO DELETE STORAGE FILE
+            =============================================
+
+            Extract path from public URL.
+            */
+
+            if (project.file_url) {
+
+                try {
+
+                    const marker =
+                        "/storage/v1/object/public/projects/";
+
+                    const index =
+                        project.file_url.indexOf(
+                            marker
+                        );
+
+
+                    if (index !== -1) {
+
+                        const path =
+                            decodeURIComponent(
+                                project.file_url
+                                    .substring(
+                                        index +
+                                        marker.length
+                                    )
+                            );
+
+
+                        if (path) {
+
+                            const {
+                                error:
+                                    storageError
+                            } =
+                                await supabaseClient
+                                    .storage
+                                    .from("projects")
+                                    .remove([
+                                        path
+                                    ]);
+
+
+                            if (storageError) {
+
+                                console.warn(
+                                    "Storage delete warning:",
+                                    storageError
+                                );
+                            }
+                        }
+                    }
+
+                } catch (
+                    storageCleanupError
+                ) {
+
+                    console.warn(
+                        "Storage cleanup failed:",
+                        storageCleanupError
+                    );
+                }
+            }
+
+
+            alert(
+                "Project deleted successfully."
+            );
+
+
+            await loadProjects();
+
+            await loadAdminProjects();
+
+
+        } catch (error) {
+
+            console.error(
+                "DELETE ERROR:",
+                error
+            );
+
+
+            alert(
+                "Delete failed: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                )
+            );
+        }
+    };
+
+
+/* =======================================================
+   CONNECTION STATUS
+======================================================= */
+
+async function testConnection() {
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from("projects")
+                .select(
+                    "id",
+                    {
+                        count: "exact",
+                        head: true
+                    }
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Connection test error:",
+                error
+            );
+
+            if (connectionStatus) {
+                connectionStatus.textContent =
+                    "Error";
+            }
+
+            if (statusDot) {
+                statusDot.style.background =
+                    "var(--red)";
+            }
+
+            return false;
+        }
+
+
+        if (connectionStatus) {
+            connectionStatus.textContent =
+                "Online";
+        }
+
+        if (statusDot) {
+            statusDot.style.background =
+                "var(--green)";
+        }
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Connection exception:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/* =======================================================
+   INITIALIZE
+======================================================= */
+
+async function init() {
+
+    console.log(
+        "MAH3D initialization..."
+    );
+
+
+    /*
+    Initial public library
+    */
+
+    await loadProjects();
+
+
+    /*
+    Connection
+    */
+
+    await testConnection();
+
+
+    /*
+    Current auth
+    */
+
+    const user =
+        await getCurrentUser();
+
+
+    currentUser =
+        user;
+
+
+    if (user) {
+
+        console.log(
+            "Current user:",
+            user.email
+        );
+
+        showDashboard(
+            user
+        );
+
+        await loadAdminProjects();
+
+    } else {
+
+        console.log(
+            "Current user: null"
+        );
+
+        showLogin();
+    }
+
+
+    console.log(
+        "MAH3D initialization complete."
+    );
+}
+
+
+/* =======================================================
+   START
+======================================================= */
+
+init();
