@@ -2,18 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="MAH3D - Premium 3D Models, Mods and Digital Projects"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>MAH3D — 3D Project Library</title>
+    <meta name="description" content="MAH3D 3D Project Library">
 
     <style>
         * {
@@ -22,66 +14,24 @@
             padding: 0;
         }
 
-        :root {
-            --bg: #05070b;
-            --bg2: #080d15;
-            --panel: rgba(13, 19, 30, 0.88);
-            --panel2: rgba(17, 25, 39, 0.95);
-
-            --line: rgba(255,255,255,0.08);
-            --line2: rgba(0, 229, 255, 0.22);
-
-            --text: #f3f8ff;
-            --muted: #8492a8;
-
-            --cyan: #00e5ff;
-            --blue: #1677ff;
-            --green: #27e68a;
-            --gold: #ffc857;
-            --red: #ff4d6d;
-
-            --radius: 18px;
-        }
-
         html {
             scroll-behavior: smooth;
         }
 
         body {
-            min-height: 100vh;
-            font-family:
-                Inter,
-                Segoe UI,
-                Arial,
-                sans-serif;
-
-            color: var(--text);
-
+            font-family: Arial, Helvetica, sans-serif;
             background:
-                radial-gradient(
-                    circle at 15% 10%,
-                    rgba(0,229,255,0.10),
-                    transparent 28%
-                ),
-                radial-gradient(
-                    circle at 85% 15%,
-                    rgba(22,119,255,0.10),
-                    transparent 28%
-                ),
-                linear-gradient(
-                    180deg,
-                    #05070b 0%,
-                    #070b12 45%,
-                    #040609 100%
-                );
-
-            overflow-x: hidden;
+                radial-gradient(circle at top left, rgba(0, 229, 255, .10), transparent 35%),
+                radial-gradient(circle at top right, rgba(0, 89, 255, .10), transparent 35%),
+                #06080d;
+            color: #f4f7fb;
+            min-height: 100vh;
         }
 
         button,
         input,
-        select,
-        textarea {
+        textarea,
+        select {
             font: inherit;
         }
 
@@ -94,714 +44,416 @@
             text-decoration: none;
         }
 
-        /* =====================================================
-           TOP BAR
-        ===================================================== */
-
         .topbar {
             position: sticky;
             top: 0;
-            z-index: 100;
-
-            height: 72px;
-
+            z-index: 1000;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-
-            padding: 0 6%;
-
-            background: rgba(5,7,11,0.78);
-            backdrop-filter: blur(18px);
-
-            border-bottom: 1px solid var(--line);
+            padding: 0 28px;
+            background: rgba(5, 7, 12, .88);
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            backdrop-filter: blur(15px);
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 12px;
-
-            font-size: 21px;
             font-weight: 900;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            font-size: 20px;
         }
 
-        .brand-mark {
-            width: 42px;
-            height: 42px;
-
+        .brand-logo {
+            width: 40px;
+            height: 40px;
             display: grid;
             place-items: center;
-
             border-radius: 12px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--cyan),
-                    var(--blue)
-                );
-
-            color: #001014;
-
-            font-weight: 1000;
-
-            box-shadow:
-                0 0 25px rgba(0,229,255,0.25);
+            background: linear-gradient(135deg, #00e5ff, #145cff);
+            color: #001018;
+            box-shadow: 0 0 25px rgba(0,229,255,.25);
         }
 
-        .brand span {
-            background:
-                linear-gradient(
-                    90deg,
-                    #fff,
-                    var(--cyan),
-                    #fff
-                );
-
-            background-size: 220% auto;
-
-            -webkit-background-clip: text;
-            background-clip: text;
-
-            color: transparent;
-
-            animation: shine 4s linear infinite;
-        }
-
-        @keyframes shine {
-            to {
-                background-position: 220% center;
-            }
-        }
-
-        .topnav {
+        .nav {
             display: flex;
-            align-items: center;
             gap: 10px;
         }
 
-        .nav-btn {
-            border: 1px solid var(--line);
-            background: rgba(255,255,255,0.03);
-
-            color: #dce7f5;
-
+        .nav a {
             padding: 10px 15px;
-
             border-radius: 10px;
-
-            transition: 0.2s;
+            color: #aeb8c8;
         }
 
-        .nav-btn:hover {
-            border-color: var(--line2);
-            background: rgba(0,229,255,0.07);
+        .nav a:hover {
             color: white;
+            background: rgba(255,255,255,.06);
         }
-
-        /* =====================================================
-           HERO
-        ===================================================== */
 
         .hero {
-            width: min(1180px, 92%);
-            margin: 0 auto;
-
-            padding: 90px 0 60px;
-
+            padding: 90px 20px 65px;
             text-align: center;
         }
 
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-            padding: 8px 13px;
-
-            border: 1px solid rgba(0,229,255,0.18);
-
-            border-radius: 999px;
-
-            background: rgba(0,229,255,0.05);
-
-            color: var(--cyan);
-
-            font-size: 12px;
-            font-weight: 800;
-
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
         .hero h1 {
-            margin-top: 22px;
-
-            font-size: clamp(42px, 8vw, 92px);
-
-            line-height: 0.95;
-
+            font-size: clamp(42px, 8vw, 82px);
+            line-height: .95;
             font-weight: 1000;
-
             letter-spacing: -4px;
-        }
-
-        .hero h1 strong {
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--cyan),
-                    #fff,
-                    var(--blue)
-                );
-
+            background: linear-gradient(90deg, #ffffff, #00e5ff, #4d7cff);
             -webkit-background-clip: text;
             background-clip: text;
-
             color: transparent;
         }
 
         .hero p {
             max-width: 700px;
-
-            margin: 25px auto 0;
-
-            color: var(--muted);
-
-            font-size: 17px;
+            margin: 24px auto 0;
+            color: #9da8ba;
             line-height: 1.7;
+            font-size: 17px;
         }
 
-        /* =====================================================
-           SEARCH
-        ===================================================== */
-
-        .library {
-            width: min(1180px, 92%);
-            margin: auto;
-        }
-
-        .toolbar {
-            display: grid;
-            grid-template-columns: 1fr 200px 160px;
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
             gap: 12px;
-
-            margin-bottom: 25px;
-        }
-
-        .input,
-        .select,
-        .textarea {
-            width: 100%;
-
-            border: 1px solid var(--line);
-
-            outline: none;
-
-            border-radius: 12px;
-
-            background: rgba(255,255,255,0.035);
-
-            color: white;
-
-            padding: 13px 15px;
-
-            transition: 0.2s;
-        }
-
-        .input:focus,
-        .select:focus,
-        .textarea:focus {
-            border-color: rgba(0,229,255,0.45);
-
-            box-shadow:
-                0 0 0 3px rgba(0,229,255,0.06);
-        }
-
-        .select option {
-            background: #101722;
-            color: white;
-        }
-
-        /* =====================================================
-           PROJECT GRID
-        ===================================================== */
-
-        .projects-grid {
-            display: grid;
-
-            grid-template-columns:
-                repeat(
-                    auto-fill,
-                    minmax(260px, 1fr)
-                );
-
-            gap: 18px;
-
-            padding-bottom: 80px;
-        }
-
-        .project-card {
-            position: relative;
-
-            min-height: 270px;
-
-            display: flex;
-            flex-direction: column;
-
-            overflow: hidden;
-
-            border:
-                1px solid
-                rgba(255,255,255,0.08);
-
-            border-radius: var(--radius);
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(17,25,39,0.95),
-                    rgba(8,12,18,0.96)
-                );
-
-            box-shadow:
-                0 18px 60px rgba(0,0,0,0.25);
-
-            transition:
-                transform 0.25s,
-                border-color 0.25s,
-                box-shadow 0.25s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-
-            border-color:
-                rgba(0,229,255,0.28);
-
-            box-shadow:
-                0 20px 70px
-                rgba(0,0,0,0.45),
-                0 0 30px
-                rgba(0,229,255,0.05);
-        }
-
-        .card-top {
-            min-height: 115px;
-
-            padding: 20px;
-
-            background:
-                radial-gradient(
-                    circle at 80% 20%,
-                    rgba(0,229,255,0.10),
-                    transparent 35%
-                );
-        }
-
-        .badges {
-            display: flex;
+            margin-top: 30px;
             flex-wrap: wrap;
-            gap: 7px;
-
-            margin-bottom: 15px;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-
-            padding: 6px 9px;
-
-            border-radius: 999px;
-
-            font-size: 10px;
-            font-weight: 900;
-
-            letter-spacing: 0.7px;
-
-            text-transform: uppercase;
-        }
-
-        .badge-category {
-            background: rgba(255,255,255,0.06);
-            color: #b9c6d8;
-        }
-
-        .badge-free {
-            background: rgba(39,230,138,0.12);
-            color: var(--green);
-
-            border: 1px solid
-                rgba(39,230,138,0.18);
-        }
-
-        .badge-paid {
-            background: rgba(255,200,87,0.12);
-            color: var(--gold);
-
-            border: 1px solid
-                rgba(255,200,87,0.20);
-        }
-
-        .project-card h3 {
-            font-size: 20px;
-            line-height: 1.2;
-        }
-
-        .card-body {
-            flex: 1;
-
-            padding: 0 20px 20px;
-        }
-
-        .project-description {
-            color: var(--muted);
-
-            font-size: 13px;
-
-            line-height: 1.6;
-
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-
-            overflow: hidden;
-        }
-
-        .price {
-            margin-top: 14px;
-
-            font-size: 21px;
-            font-weight: 1000;
-        }
-
-        .price.free {
-            color: var(--green);
-        }
-
-        .price.paid {
-            color: var(--gold);
-        }
-
-        .card-footer {
-            display: flex;
-            gap: 8px;
-
-            padding: 15px 20px;
-
-            border-top: 1px solid var(--line);
         }
 
         .btn {
             border: 0;
-
-            border-radius: 10px;
-
-            padding: 11px 14px;
-
+            border-radius: 12px;
+            padding: 13px 20px;
             font-weight: 800;
+            transition: .2s;
+        }
 
-            transition: 0.2s;
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         .btn-primary {
-            flex: 1;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--cyan),
-                    var(--blue)
-                );
-
-            color: #001014;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-
-            box-shadow:
-                0 8px 25px
-                rgba(0,229,255,0.18);
+            color: #001018;
+            background: linear-gradient(135deg, #00e5ff, #3485ff);
+            box-shadow: 0 10px 35px rgba(0,150,255,.18);
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.05);
             color: white;
-
-            border: 1px solid var(--line);
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.10);
         }
 
-        .btn-danger {
-            background: rgba(255,77,109,0.10);
-            color: #ff7189;
-
-            border: 1px solid
-                rgba(255,77,109,0.18);
+        .container {
+            width: min(1180px, calc(100% - 32px));
+            margin: auto;
         }
 
-        /* =====================================================
-           EMPTY
-        ===================================================== */
-
-        .empty {
-            grid-column: 1 / -1;
-
-            padding: 70px 20px;
-
-            text-align: center;
-
-            border: 1px dashed var(--line);
-
-            border-radius: var(--radius);
-
-            color: var(--muted);
-        }
-
-        .empty-icon {
-            font-size: 42px;
-            margin-bottom: 15px;
-        }
-
-        /* =====================================================
-           ADMIN
-        ===================================================== */
-
-        .admin-section {
-            width: min(1180px, 92%);
-
-            margin: 30px auto 100px;
+        .section {
+            padding: 35px 0 70px;
         }
 
         .section-title {
-            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 22px;
         }
 
         .section-title h2 {
             font-size: 27px;
         }
 
-        .section-title p {
-            color: var(--muted);
-            margin-top: 5px;
+        .section-title span {
+            color: #738097;
         }
 
-        .admin-card {
-            border:
-                1px solid var(--line);
-
-            border-radius: var(--radius);
-
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(13,19,30,0.92),
-                    rgba(8,12,18,0.96)
-                );
-
-            padding: 25px;
-
-            box-shadow:
-                0 20px 80px
-                rgba(0,0,0,0.25);
-        }
-
-        #loginPanel {
-            max-width: 520px;
-            margin: 0 auto;
-        }
-
-        .admin-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            gap: 15px;
-
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1.5fr .7fr .7fr;
+            gap: 10px;
             margin-bottom: 25px;
         }
 
-        .admin-user {
-            color: var(--cyan);
-            font-size: 13px;
+        .input,
+        .textarea,
+        .select {
+            width: 100%;
+            border: 1px solid rgba(255,255,255,.10);
+            background: #0c111a;
+            color: white;
+            border-radius: 11px;
+            padding: 13px 14px;
+            outline: none;
         }
 
-        .form-grid {
+        .input:focus,
+        .textarea:focus,
+        .select:focus {
+            border-color: #00e5ff;
+            box-shadow: 0 0 0 3px rgba(0,229,255,.07);
+        }
+
+        .textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .projects-grid {
             display: grid;
-
-            grid-template-columns:
-                repeat(2, minmax(0,1fr));
-
-            gap: 15px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
 
-        .form-group {
+        .card {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #0d131d, #090d14);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 18px;
+            padding: 20px;
+            min-height: 210px;
+            transition: .2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0,229,255,.35);
+            box-shadow: 0 20px 50px rgba(0,0,0,.25);
+        }
+
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .category {
+            color: #7e8da5;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .badge {
+            display: inline-flex;
+            padding: 6px 9px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .free {
+            background: rgba(0,255,136,.10);
+            color: #00ff88;
+            border: 1px solid rgba(0,255,136,.18);
+        }
+
+        .paid {
+            background: rgba(255,190,0,.10);
+            color: #ffc400;
+            border: 1px solid rgba(255,190,0,.18);
+        }
+
+        .card h3 {
+            font-size: 21px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #8793a6;
+            line-height: 1.55;
+            min-height: 48px;
+            margin-bottom: 16px;
+        }
+
+        .price {
+            font-weight: 900;
+            font-size: 19px;
+            color: #fff;
             margin-bottom: 15px;
         }
 
-        .form-group.full {
-            grid-column: 1 / -1;
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty {
+            padding: 55px 20px;
+            text-align: center;
+            color: #718097;
+            border: 1px dashed rgba(255,255,255,.12);
+            border-radius: 16px;
+        }
+
+        .admin {
+            border-top: 1px solid rgba(255,255,255,.08);
+            background: rgba(0,0,0,.12);
+        }
+
+        .admin-box {
+            background: #090d14;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .login-panel {
+            max-width: 480px;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
         }
 
         .form-group label {
             display: block;
-
             margin-bottom: 7px;
-
-            color: #aebbd0;
-
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        .textarea {
-            min-height: 110px;
-            resize: vertical;
-        }
-
-        .upload-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-
-            margin-top: 5px;
-        }
-
-        .progress {
-            flex: 1;
-
-            height: 8px;
-
-            overflow: hidden;
-
-            border-radius: 999px;
-
-            background: rgba(255,255,255,0.06);
-        }
-
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--cyan),
-                    var(--blue)
-                );
-
-            transition: width 0.2s;
-        }
-
-        .status {
-            margin-top: 12px;
-
-            min-height: 20px;
-
-            color: var(--muted);
-
+            color: #9aa7ba;
             font-size: 13px;
         }
 
-        .status.success {
-            color: var(--green);
+        .message {
+            min-height: 22px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #9aa7ba;
         }
 
-        .status.error {
-            color: #ff7189;
+        .message.success {
+            color: #00ff88;
         }
 
-        .hidden {
-            display: none !important;
+        .message.error {
+            color: #ff5f6d;
         }
 
-        /* =====================================================
-           STATS
-        ===================================================== */
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .admin-email {
+            color: #00e5ff;
+            font-weight: 700;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #8e9bae;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 12px #00ff88;
+        }
 
         .stats {
             display: grid;
-
-            grid-template-columns:
-                repeat(4, 1fr);
-
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .stat {
-            padding: 17px;
-
-            border:
-                1px solid var(--line);
-
-            border-radius: 14px;
-
-            background:
-                rgba(255,255,255,0.025);
+            padding: 18px;
+            background: #0d131d;
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 15px;
         }
 
         .stat-label {
-            color: var(--muted);
-
-            font-size: 11px;
-
+            color: #748198;
+            font-size: 12px;
             text-transform: uppercase;
-
-            letter-spacing: 0.7px;
+            letter-spacing: 1px;
         }
 
         .stat-value {
-            margin-top: 7px;
-
-            font-size: 24px;
-
-            font-weight: 1000;
+            font-size: 29px;
+            font-weight: 900;
+            margin-top: 6px;
         }
 
-        .dot {
-            display: inline-block;
-
-            width: 8px;
-            height: 8px;
-
-            margin-right: 6px;
-
-            border-radius: 50%;
-
-            background: var(--green);
-
-            box-shadow:
-                0 0 10px
-                rgba(39,230,138,0.5);
+        .upload-box {
+            padding: 22px;
+            border: 1px solid rgba(255,255,255,.07);
+            background: #0b1018;
+            border-radius: 16px;
+            margin-bottom: 28px;
         }
 
-        /* =====================================================
-           MODAL
-        ===================================================== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        .admin-project {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #0c1119;
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 13px;
+            margin-bottom: 10px;
+        }
+
+        .admin-project-info h4 {
+            margin-bottom: 5px;
+        }
+
+        .admin-project-info small {
+            color: #748198;
+        }
+
+        .btn-danger {
+            color: white;
+            background: #9d1e2d;
+        }
 
         .modal {
-            position: fixed;
-
-            inset: 0;
-
-            z-index: 1000;
-
             display: none;
-
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            padding: 20px;
+            background: rgba(0,0,0,.78);
+            backdrop-filter: blur(8px);
             align-items: center;
             justify-content: center;
-
-            padding: 20px;
-
-            background:
-                rgba(0,0,0,0.78);
-
-            backdrop-filter: blur(10px);
         }
 
         .modal.show {
@@ -809,137 +461,84 @@
         }
 
         .modal-box {
-            width: min(650px, 100%);
-
+            width: min(600px, 100%);
             max-height: 90vh;
-
-            overflow-y: auto;
-
-            border:
-                1px solid
-                rgba(0,229,255,0.18);
-
+            overflow: auto;
+            background: #0b1018;
+            border: 1px solid rgba(255,255,255,.10);
             border-radius: 20px;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #101824,
-                    #070b11
-                );
-
-            box-shadow:
-                0 30px 100px
-                rgba(0,0,0,0.55);
-
-            padding: 28px;
+            padding: 25px;
+            box-shadow: 0 30px 100px rgba(0,0,0,.55);
         }
 
         .modal-header {
             display: flex;
-            align-items: flex-start;
             justify-content: space-between;
-
-            gap: 20px;
-
+            gap: 15px;
+            align-items: center;
             margin-bottom: 20px;
         }
 
         .close {
             width: 38px;
             height: 38px;
-
-            border: 1px solid var(--line);
-
             border-radius: 10px;
-
-            background: rgba(255,255,255,0.05);
-
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.06);
             color: white;
-
-            font-size: 18px;
+            font-size: 20px;
         }
 
         .modal-description {
-            color: var(--muted);
-
+            color: #9aa6b8;
             line-height: 1.7;
-
+            margin: 15px 0;
             white-space: pre-wrap;
         }
 
-        .modal-price {
-            margin-top: 20px;
-
-            font-size: 28px;
-
-            font-weight: 1000;
-        }
-
-        .modal-download {
-            width: 100%;
-
-            margin-top: 20px;
-        }
-
-        /* =====================================================
-           FOOTER
-        ===================================================== */
-
         footer {
             padding: 35px 20px;
-
             text-align: center;
-
-            color: #5e6a7c;
-
-            border-top: 1px solid var(--line);
-
-            font-size: 12px;
+            color: #667388;
+            border-top: 1px solid rgba(255,255,255,.07);
         }
 
-        /* =====================================================
-           MOBILE
-        ===================================================== */
+        @media (max-width: 900px) {
+            .projects-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
 
-        @media (max-width: 850px) {
             .toolbar {
                 grid-template-columns: 1fr;
             }
-
-            .stats {
-                grid-template-columns:
-                    repeat(2, 1fr);
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full {
-                grid-column: auto;
-            }
-
-            .topnav {
-                display: none;
-            }
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 650px) {
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .nav {
+                display: none;
+            }
+
             .hero {
                 padding-top: 60px;
             }
 
-            .hero h1 {
-                letter-spacing: -2px;
+            .projects-grid,
+            .stats,
+            .form-grid {
+                grid-template-columns: 1fr;
             }
 
-            .stats {
-                grid-template-columns: 1fr 1fr;
+            .full {
+                grid-column: auto;
             }
 
-            .admin-card {
-                padding: 18px;
+            .admin-project {
+                flex-direction: column;
+                align-items: stretch;
             }
         }
     </style>
@@ -947,685 +546,298 @@
 
 <body>
 
-<!-- =========================================================
-     NAVIGATION
-========================================================= -->
-
 <header class="topbar">
-
-    <a
-        href="#home"
-        class="brand"
-    >
-        <div class="brand-mark">
-            M3
-        </div>
-
+    <a class="brand" href="#">
+        <span class="brand-logo">M</span>
         <span>MAH3D</span>
     </a>
 
-    <nav class="topnav">
-
-        <a
-            href="#library"
-            class="nav-btn"
-        >
-            Library
-        </a>
-
-        <a
-            href="#admin"
-            class="nav-btn"
-        >
-            Admin
-        </a>
-
+    <nav class="nav">
+        <a href="#projects">Projects</a>
+        <a href="#admin">Admin</a>
     </nav>
-
 </header>
 
+<main>
 
-<!-- =========================================================
-     HERO
-========================================================= -->
-
-<section
-    class="hero"
-    id="home"
->
-
-    <div class="hero-badge">
-        ⚡ MAH3D DIGITAL LIBRARY
-    </div>
-
-    <h1>
-        Build.
-        <strong>Download.</strong>
-        Create.
-    </h1>
+<section class="hero">
+    <h1>MAH3D</h1>
 
     <p>
-        Premium 3D models, mods and digital projects
-        created for the MAH3D community.
+        Premium 3D project library for models, assets, vehicles,
+        Blender projects and downloadable creations.
     </p>
 
+    <div class="hero-buttons">
+        <a href="#projects" class="btn btn-primary">Explore Projects</a>
+        <a href="#admin" class="btn btn-secondary">Admin Panel</a>
+    </div>
 </section>
 
+<section id="projects" class="section">
+    <div class="container">
 
-<!-- =========================================================
-     LIBRARY
-========================================================= -->
-
-<main
-    class="library"
-    id="library"
->
-
-    <div class="toolbar">
-
-        <input
-            id="searchInput"
-            class="input"
-            type="search"
-            placeholder="🔎 Search projects..."
-            autocomplete="off"
-        >
-
-        <select
-            id="categoryFilter"
-            class="select"
-        >
-            <option value="all">
-                All Categories
-            </option>
-
-            <option value="3D">
-                3D
-            </option>
-
-            <option value="BUSSID">
-                BUSSID
-            </option>
-
-            <option value="ETS2">
-                ETS2
-            </option>
-
-            <option value="Blender">
-                Blender
-            </option>
-
-            <option value="Mods">
-                Mods
-            </option>
-
-            <option value="Other">
-                Other
-            </option>
-        </select>
-
-        <select
-            id="accessFilter"
-            class="select"
-        >
-            <option value="all">
-                All Models
-            </option>
-
-            <option value="free">
-                🟢 Free
-            </option>
-
-            <option value="paid">
-                💎 Paid
-            </option>
-        </select>
-
-    </div>
-
-
-    <div
-        id="projectsGrid"
-        class="projects-grid"
-    >
-
-        <div class="empty">
-
-            <div class="empty-icon">
-                ⏳
-            </div>
-
+        <div class="section-title">
             <div>
-                Loading projects...
+                <h2>Project Library</h2>
+                <span id="projectResultCount">Loading...</span>
             </div>
-
         </div>
 
+        <div class="toolbar">
+            <input
+                id="searchInput"
+                class="input"
+                type="search"
+                placeholder="Search projects..."
+            >
+
+            <select id="categoryFilter" class="select">
+                <option value="all">All categories</option>
+            </select>
+
+            <select id="accessFilter" class="select">
+                <option value="all">Free + Paid</option>
+                <option value="free">Free</option>
+                <option value="paid">Paid</option>
+            </select>
+        </div>
+
+        <div id="projectsGrid" class="projects-grid"></div>
+
     </div>
+</section>
+
+<section id="admin" class="section admin">
+    <div class="container">
+
+        <div class="section-title">
+            <div>
+                <h2>MAH3D Admin</h2>
+                <span>Manage your project library</span>
+            </div>
+        </div>
+
+        <div class="admin-box">
+
+            <div id="loginPanel" class="login-panel">
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+                        <label for="email">Admin email</label>
+                        <input
+                            id="email"
+                            class="input"
+                            type="email"
+                            required
+                            autocomplete="email"
+                            placeholder="admin@email.com"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input
+                            id="password"
+                            class="input"
+                            type="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Password"
+                        >
+                    </div>
+
+                    <button id="loginBtn" class="btn btn-primary" type="submit">
+                        Login
+                    </button>
+
+                    <div id="loginMessage" class="message"></div>
+
+                </form>
+            </div>
+
+            <div id="dashboard" class="dashboard">
+
+                <div class="dashboard-header">
+                    <div>
+                        <div>Logged in as</div>
+                        <div id="adminEmail" class="admin-email"></div>
+                    </div>
+
+                    <div>
+                        <div class="status">
+                            <span id="statusDot" class="status-dot"></span>
+                            <span id="connectionStatus">Connected</span>
+                        </div>
+
+                        <button id="logoutBtn" class="btn btn-secondary" type="button">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats">
+
+                    <div class="stat">
+                        <div class="stat-label">Projects</div>
+                        <div id="projectCount" class="stat-value">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-label">Paid</div>
+                        <div id="paidCount" class="stat-value">0</div>
+                    </div>
+
+                    <div class="stat">
+                        <div class="stat-label">Database</div>
+                        <div id="databaseStatus" class="stat-value">OK</div>
+                    </div>
+
+                </div>
+
+                <div class="upload-box">
+
+                    <h3 style="margin-bottom:18px;">Upload New Project</h3>
+
+                    <form id="uploadForm">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="projectTitle">Project title</label>
+                                <input
+                                    id="projectTitle"
+                                    class="input"
+                                    type="text"
+                                    required
+                                    placeholder="Mercedes Sprinter..."
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="projectCategory">Category</label>
+                                <select id="projectCategory" class="select">
+                                    <option value="Blender">Blender</option>
+                                    <option value="BUSSID">BUSSID</option>
+                                    <option value="ETS2">ETS2</option>
+                                    <option value="GTA">GTA</option>
+                                    <option value="3D Model">3D Model</option>
+                                    <option value="Vehicle">Vehicle</option>
+                                    <option value="Texture">Texture</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="projectAccess">Access</label>
+
+                                <select id="projectAccess" class="select">
+                                    <option value="free">Free</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                            </div>
+
+                            <div id="priceGroup" class="form-group" style="display:none;">
+                                <label for="projectPrice">Price (USD)</label>
+
+                                <input
+                                    id="projectPrice"
+                                    class="input"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value="0"
+                                    placeholder="10"
+                                >
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="projectDescription">Description</label>
+
+                                <textarea
+                                    id="projectDescription"
+                                    class="textarea"
+                                    placeholder="Project description..."
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group full">
+                                <label for="projectFile">Project file</label>
+
+                                <input
+                                    id="projectFile"
+                                    class="input"
+                                    type="file"
+                                    required
+                                >
+                            </div>
+
+                        </div>
+
+                        <button id="uploadBtn" class="btn btn-primary" type="submit">
+                            Upload Project
+                        </button>
+
+                        <div id="uploadProgress" class="message"></div>
+                        <div id="uploadStatus" class="message"></div>
+
+                    </form>
+
+                </div>
+
+                <div>
+                    <h3 style="margin-bottom:15px;">Your Projects</h3>
+                    <div id="adminProjects"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
 
 </main>
 
-
-<!-- =========================================================
-     ADMIN
-========================================================= -->
-
-<section
-    class="admin-section"
-    id="admin"
->
-
-    <div class="section-title">
-
-        <h2>
-            MAH3D Admin
-        </h2>
-
-        <p>
-            Manage your digital project library.
-        </p>
-
-    </div>
-
-
-    <!-- LOGIN -->
-
-    <div
-        id="loginPanel"
-        class="admin-card"
-    >
-
-        <h3>
-            🔐 Administrator Login
-        </h3>
-
-        <p
-            style="
-                color:var(--muted);
-                margin:8px 0 20px;
-                font-size:13px;
-            "
-        >
-            Sign in to upload and manage projects.
-        </p>
-
-        <form id="loginForm">
-
-            <div class="form-group">
-
-                <label for="email">
-                    Email
-                </label>
-
-                <input
-                    id="email"
-                    class="input"
-                    type="email"
-                    required
-                    autocomplete="username"
-                    placeholder="admin@email.com"
-                >
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">
-                    Password
-                </label>
-
-                <input
-                    id="password"
-                    class="input"
-                    type="password"
-                    required
-                    autocomplete="current-password"
-                    placeholder="••••••••"
-                >
-
-            </div>
-
-
-            <button
-                id="loginBtn"
-                class="btn btn-primary"
-                type="submit"
-                style="width:100%;"
-            >
-                LOGIN
-            </button>
-
-            <div
-                id="loginMessage"
-                class="status"
-            ></div>
-
-        </form>
-
-    </div>
-
-
-    <!-- DASHBOARD -->
-
-    <div
-        id="dashboard"
-        class="hidden"
-    >
-
-        <div class="admin-card">
-
-            <div class="admin-header">
-
-                <div>
-
-                    <h3>
-                        ⚡ Dashboard
-                    </h3>
-
-                    <div
-                        id="adminEmail"
-                        class="admin-user"
-                    >
-                        -
-                    </div>
-
-                </div>
-
-                <button
-                    id="logoutBtn"
-                    class="btn btn-secondary"
-                    type="button"
-                >
-                    Logout
-                </button>
-
-            </div>
-
-
-            <!-- STATS -->
-
-            <div class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Projects
-                    </div>
-
-                    <div
-                        id="projectCount"
-                        class="stat-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Database
-                    </div>
-
-                    <div
-                        id="databaseStatus"
-                        class="stat-value"
-                        style="font-size:16px;"
-                    >
-                        Checking...
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Connection
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        style="font-size:16px;"
-                    >
-
-                        <span
-                            id="statusDot"
-                            class="dot"
-                        ></span>
-
-                        <span id="connectionStatus">
-                            Online
-                        </span>
-
-                    </div>
-
-                </div>
-
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Paid Models
-                    </div>
-
-                    <div
-                        id="paidCount"
-                        class="stat-value"
-                    >
-                        0
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- UPLOAD -->
-
-            <div
-                class="admin-card"
-                style="
-                    margin-bottom:20px;
-                    padding:20px;
-                "
-            >
-
-                <h3
-                    style="
-                        margin-bottom:18px;
-                    "
-                >
-                    📤 Upload Project
-                </h3>
-
-
-                <form id="uploadForm">
-
-                    <div class="form-grid">
-
-                        <div class="form-group">
-
-                            <label for="projectTitle">
-                                Project Title
-                            </label>
-
-                            <input
-                                id="projectTitle"
-                                class="input"
-                                type="text"
-                                required
-                                placeholder="Mercedes Sprinter"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="projectCategory">
-                                Category
-                            </label>
-
-                            <select
-                                id="projectCategory"
-                                class="select"
-                            >
-
-                                <option value="3D">
-                                    3D
-                                </option>
-
-                                <option value="BUSSID">
-                                    BUSSID
-                                </option>
-
-                                <option value="ETS2">
-                                    ETS2
-                                </option>
-
-                                <option value="Blender">
-                                    Blender
-                                </option>
-
-                                <option value="Mods">
-                                    Mods
-                                </option>
-
-                                <option value="Other">
-                                    Other
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="projectAccess">
-                                Access Type
-                            </label>
-
-                            <select
-                                id="projectAccess"
-                                class="select"
-                            >
-
-                                <option value="free">
-                                    🟢 FREE
-                                </option>
-
-                                <option value="paid">
-                                    💎 PAID
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div
-                            class="form-group"
-                            id="priceGroup"
-                        >
-
-                            <label for="projectPrice">
-                                Price
-                            </label>
-
-                            <input
-                                id="projectPrice"
-                                class="input"
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value="0"
-                                placeholder="5.00"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="projectDescription">
-                                Description
-                            </label>
-
-                            <textarea
-                                id="projectDescription"
-                                class="textarea"
-                                placeholder="Describe your project..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="projectFile">
-                                Project File
-                            </label>
-
-                            <input
-                                id="projectFile"
-                                class="input"
-                                type="file"
-                                required
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="upload-actions">
-
-                        <button
-                            id="uploadBtn"
-                            class="btn btn-primary"
-                            type="submit"
-                        >
-                            🚀 UPLOAD PROJECT
-                        </button>
-
-                        <div class="progress">
-
-                            <div
-                                id="uploadProgress"
-                                class="progress-bar"
-                            ></div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        id="uploadStatus"
-                        class="status"
-                    ></div>
-
-                </form>
-
-            </div>
-
-
-            <!-- ADMIN PROJECTS -->
-
-            <div
-                class="admin-card"
-                style="padding:20px;"
-            >
-
-                <div class="admin-header">
-
-                    <div>
-
-                        <h3>
-                            📦 Your Projects
-                        </h3>
-
-                    </div>
-
-                </div>
-
-                <div
-                    id="adminProjects"
-                    class="projects-grid"
-                    style="padding-bottom:0;"
-                ></div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!-- =========================================================
-     MODAL
-========================================================= -->
-
-<div
-    id="modal"
-    class="modal"
->
+<div id="modal" class="modal">
 
     <div class="modal-box">
 
         <div class="modal-header">
-
             <div>
-
-                <div
-                    id="modalCategory"
-                    class="badges"
-                ></div>
-
-                <h2 id="modalTitle">
-                    Project
-                </h2>
-
+                <div id="modalCategory" class="category"></div>
+                <h2 id="modalTitle"></h2>
             </div>
 
-            <button
-                id="closeModal"
-                class="close"
-                type="button"
-            >
-                ✕
+            <button id="closeModal" class="close" type="button">
+                ×
             </button>
-
         </div>
 
+        <div id="modalPrice" class="price"></div>
 
-        <div
-            id="modalDescription"
-            class="modal-description"
-        ></div>
-
-
-        <div
-            id="modalPrice"
-            class="modal-price"
-        ></div>
-
+        <div id="modalDescription" class="modal-description"></div>
 
         <a
             id="modalDownload"
-            class="btn btn-primary modal-download"
+            class="btn btn-primary"
             href="#"
             target="_blank"
             rel="noopener"
         >
-            DOWNLOAD
+            Download
         </a>
 
     </div>
-
 </div>
 
-
 <footer>
-
-    © <span id="year"></span> MAH3D.
-    All rights reserved.
-
+    © <span id="year"></span> MAH3D — 3D Project Library
 </footer>
 
-
-<!-- =========================================================
-     SUPABASE
-========================================================= -->
-
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- MAH3D -->
 <script src="./script.js"></script>
 
 </body>
