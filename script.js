@@ -1,21 +1,6 @@
-"use strict";
-
-/*
-=========================================================
- MAH3D SUPABASE WEBSITE
- FREE / PAID PROJECT SYSTEM
- + MVOLA PAYMENT HOOK
-=========================================================
-*/
-
-console.log("======================================");
-console.log("MAH3D SUPABASE ADMIN STARTING");
-console.log("======================================");
-
-
-/* =======================================================
-   SUPABASE CONFIG
-======================================================= */
+// ============================================================
+// MAH3D SITE - LOGIN + UPLOAD AUTO FIX
+// ============================================================
 
 const SUPABASE_URL =
     "https://drfxgjvvldccxbccgiud.supabase.co";
@@ -23,276 +8,224 @@ const SUPABASE_URL =
 const SUPABASE_KEY =
     "sb_publishable_iaxxz6gFJhMdR5tTZGZMOg_CiSibohE";
 
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
 
-if (
-    !window.supabase ||
-    typeof window.supabase.createClient !== "function"
-) {
-    console.error("Supabase library not loaded.");
-
-    alert(
-        "Supabase library tsy tafiditra. Jereo ny CDN ao amin'ny index.html."
-    );
-
-    throw new Error("Supabase library missing");
-}
-
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY,
-        {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
-            }
-        }
-    );
-
-
-/* =======================================================
-   CONFIG
-======================================================= */
-
-const STORAGE_BUCKET = "projects";
-
-const CURRENCY = "USD";
-
-/*
- IMPORTANT:
- MVOLA endpoint public URL only.
- NO SECRET HERE.
-*/
-
-const MVOLA_FUNCTION_URL =
-    "https://drfxgjvvldccxbccgiud.supabase.co/functions/v1/mvola-pay";
-
-
-/* =======================================================
-   SHORTCUT
-======================================================= */
-
-function $(id) {
-    return document.getElementById(id);
-}
-
-
-/* =======================================================
-   GLOBAL STATE
-======================================================= */
+// ------------------------------------------------------------
+// STATE
+// ------------------------------------------------------------
 
 let currentUser = null;
-
 let allProjects = [];
-
 let currentModalProject = null;
 
+// ------------------------------------------------------------
+// DOM
+// ------------------------------------------------------------
 
-/* =======================================================
-   DOM
-======================================================= */
+const loginPanel = document.getElementById("loginPanel");
+const dashboard = document.getElementById("dashboard");
+const loginForm = document.getElementById("loginForm");
 
-const loginPanel = $("loginPanel");
-const loginForm = $("loginForm");
-const emailInput = $("email");
-const passwordInput = $("password");
-const loginBtn = $("loginBtn");
-const loginMessage = $("loginMessage");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
 
-const dashboard = $("dashboard");
-const adminEmail = $("adminEmail");
-const logoutBtn = $("logoutBtn");
+const uploadForm = document.getElementById("uploadForm");
+const projectTitle = document.getElementById("projectTitle");
+const projectCategory = document.getElementById("projectCategory");
+const projectAccess = document.getElementById("projectAccess");
+const projectPrice = document.getElementById("projectPrice");
+const projectDescription =
+    document.getElementById("projectDescription");
+const projectFile = document.getElementById("projectFile");
 
-const statusDot = $("statusDot");
-const connectionStatus = $("connectionStatus");
+const uploadBtn = document.getElementById("uploadBtn");
+const uploadProgress =
+    document.getElementById("uploadProgress");
+const uploadStatus =
+    document.getElementById("uploadStatus");
 
-const projectCount = $("projectCount");
-const paidCount = $("paidCount");
-const databaseStatus = $("databaseStatus");
+const adminProjects =
+    document.getElementById("adminProjects");
 
-const uploadForm = $("uploadForm");
-const projectTitle = $("projectTitle");
-const projectDescription = $("projectDescription");
-const projectCategory = $("projectCategory");
-const projectAccess = $("projectAccess");
-const projectPrice = $("projectPrice");
-const priceGroup = $("priceGroup");
-const projectFile = $("projectFile");
-
-const uploadBtn = $("uploadBtn");
-const uploadProgress = $("uploadProgress");
-const uploadStatus = $("uploadStatus");
-
-const adminProjects = $("adminProjects");
-
-const searchInput = $("searchInput");
-const categoryFilter = $("categoryFilter");
-const accessFilter = $("accessFilter");
-
-const projectsGrid = $("projectsGrid");
-
-const modal = $("modal");
-const closeModal = $("closeModal");
-
-const modalCategory = $("modalCategory");
-const modalTitle = $("modalTitle");
-const modalDescription = $("modalDescription");
-const modalPrice = $("modalPrice");
-const modalDownload = $("modalDownload");
-
-const year = $("year");
+const projectsContainer =
+    document.getElementById("projects");
 
 
-/* =======================================================
-   YEAR
-======================================================= */
+// ============================================================
+// UI HELPERS
+// ============================================================
 
-if (year) {
-    year.textContent = new Date().getFullYear();
+function setDisplay(element, visible, displayType = "block") {
+
+    if (!element) return;
+
+    element.style.display =
+        visible ? displayType : "none";
 }
 
 
-/* =======================================================
-   HELPERS
-======================================================= */
+function showLogin() {
 
-function escapeHTML(value) {
+    setDisplay(loginPanel, true, "block");
+    setDisplay(dashboard, false);
 
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    console.log("MAH3D: Login panel visible");
 }
 
 
-function normalizeAccess(project) {
+function showDashboard(user) {
 
-    return project &&
-        project.access_type === "paid"
-        ? "paid"
-        : "free";
-}
+    currentUser = user;
 
+    setDisplay(loginPanel, false);
+    setDisplay(dashboard, true, "block");
 
-function getPrice(project) {
+    // IMPORTANT:
+    // Override CSS display:none
+    dashboard.style.display = "block";
 
-    const value = Number(project?.price);
-
-    return Number.isFinite(value)
-        ? value
-        : 0;
-}
-
-
-function formatPrice(price) {
-
-    const value = Number(price);
-
-    if (!Number.isFinite(value)) {
-        return "0.00";
-    }
-
-    return value.toFixed(2);
-}
-
-
-function formatMoney(price) {
-
-    return (
-        formatPrice(price)
-        + " "
-        + CURRENCY
+    console.log(
+        "MAH3D: Dashboard visible for",
+        user?.email
     );
 }
 
 
-function setStatus(
-    element,
-    message,
-    type = ""
-) {
+function status(message, type = "info") {
 
-    if (!element) {
-        return;
-    }
+    if (!uploadStatus) return;
 
-    element.textContent = message || "";
+    uploadStatus.textContent = message;
 
-    element.className = "status";
-
-    if (type) {
-        element.classList.add(type);
-    }
+    uploadStatus.className =
+        "upload-status " + type;
 }
 
 
-/* =======================================================
-   PRICE UI
-======================================================= */
+// ============================================================
+// LOGIN
+// ============================================================
 
-function updatePriceVisibility() {
+async function login(email, password) {
 
-    if (
-        !projectAccess ||
-        !priceGroup ||
-        !projectPrice
-    ) {
+    if (!email || !password) {
+
+        alert("Ampidiro email sy password.");
+
         return;
     }
 
-    const paid =
-        projectAccess.value === "paid";
+    try {
 
-    if (paid) {
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email.trim(),
+                password: password
+            });
 
-        priceGroup.classList.remove("hidden");
+        if (error) {
 
-        projectPrice.disabled = false;
-        projectPrice.required = true;
+            console.error(
+                "LOGIN ERROR:",
+                error
+            );
 
-        if (
-            !projectPrice.value ||
-            Number(projectPrice.value) <= 0
-        ) {
-            projectPrice.value = "5";
+            alert(
+                "Login tsy mety:\n" +
+                error.message
+            );
+
+            return;
         }
 
-    } else {
+        if (!data?.user) {
 
-        priceGroup.classList.add("hidden");
+            alert("Login tsy nahazo utilisateur.");
 
-        projectPrice.disabled = true;
-        projectPrice.required = false;
+            return;
+        }
 
-        projectPrice.value = "0";
+        showDashboard(data.user);
+
+        await loadProjects();
+
+        await loadAdminProjects();
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert(
+            "Erreur login:\n" +
+            err.message
+        );
     }
 }
 
 
-if (projectAccess) {
+// ------------------------------------------------------------
+// LOGIN FORM
+// ------------------------------------------------------------
 
-    projectAccess.addEventListener(
-        "change",
-        updatePriceVisibility
+if (loginForm) {
+
+    loginForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const email =
+                emailInput?.value || "";
+
+            const password =
+                passwordInput?.value || "";
+
+            await login(
+                email,
+                password
+            );
+        }
     );
-
-    updatePriceVisibility();
 }
 
 
-/* =======================================================
-   AUTH
-======================================================= */
+// ============================================================
+// LOGOUT
+// ============================================================
 
-async function getCurrentUser() {
+async function logout() {
+
+    const { error } =
+        await supabaseClient.auth.signOut();
+
+    if (error) {
+
+        console.error(error);
+
+        return;
+    }
+
+    currentUser = null;
+
+    showLogin();
+
+    alert("Déconnecté.");
+}
+
+
+// Make available to HTML buttons
+window.logout = logout;
+
+
+// ============================================================
+// AUTH AUTO CHECK
+// ============================================================
+
+async function checkSession() {
 
     try {
 
@@ -300,259 +233,77 @@ async function getCurrentUser() {
             data,
             error
         } =
-            await supabaseClient.auth.getUser();
+            await supabaseClient.auth.getSession();
 
         if (error) {
 
-            console.warn(
-                "getUser:",
-                error.message
+            console.error(
+                "SESSION ERROR:",
+                error
             );
 
-            return null;
+            showLogin();
+
+            return;
         }
 
-        return data?.user || null;
+        const session =
+            data?.session;
 
-    } catch (error) {
-
-        console.error(
-            "getCurrentUser:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =======================================================
-   LOGIN / DASHBOARD
-======================================================= */
-
-function showLogin() {
-
-    if (loginPanel) {
-        loginPanel.classList.remove("hidden");
-    }
-
-    if (dashboard) {
-        dashboard.classList.add("hidden");
-    }
-
-    if (adminEmail) {
-        adminEmail.textContent = "-";
-    }
-}
-
-
-function showDashboard(user) {
-
-    if (loginPanel) {
-        loginPanel.classList.add("hidden");
-    }
-
-    if (dashboard) {
-        dashboard.classList.remove("hidden");
-
-        /*
-        Force visible in case another CSS rule
-        accidentally hides dashboard.
-        */
-        dashboard.style.display = "";
-    }
-
-    if (adminEmail) {
-        adminEmail.textContent =
-            user?.email || "";
-    }
-}
-
-
-/* =======================================================
-   LOGIN
-======================================================= */
-
-if (loginForm) {
-
-    loginForm.addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-            setStatus(
-                loginMessage,
-                "Signing in..."
-            );
-
-            if (loginBtn) {
-
-                loginBtn.disabled = true;
-                loginBtn.textContent = "LOGIN...";
-            }
-
-            const email =
-                emailInput?.value.trim() || "";
-
-            const password =
-                passwordInput?.value || "";
-
-            if (!email || !password) {
-
-                setStatus(
-                    loginMessage,
-                    "Email and password are required.",
-                    "error"
-                );
-
-                if (loginBtn) {
-
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = "LOGIN";
-                }
-
-                return;
-            }
-
-
-            try {
-
-                const {
-                    data,
-                    error
-                } =
-                    await supabaseClient.auth
-                        .signInWithPassword({
-                            email,
-                            password
-                        });
-
-
-                if (error) {
-
-                    console.error(
-                        "LOGIN ERROR:",
-                        error
-                    );
-
-                    setStatus(
-                        loginMessage,
-                        error.message,
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                currentUser =
-                    data?.user || null;
-
-
-                showDashboard(
-                    currentUser
-                );
-
-
-                setStatus(
-                    loginMessage,
-                    "Login successful.",
-                    "success"
-                );
-
-
-                await loadProjects();
-                await loadAdminProjects();
-
-
-            } catch (error) {
-
-                console.error(
-                    "LOGIN EXCEPTION:",
-                    error
-                );
-
-                setStatus(
-                    loginMessage,
-                    error.message ||
-                    "Login failed.",
-                    "error"
-                );
-
-            } finally {
-
-                if (loginBtn) {
-
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = "LOGIN";
-                }
-            }
-        }
-    );
-}
-
-
-/* =======================================================
-   LOGOUT
-======================================================= */
-
-if (logoutBtn) {
-
-    logoutBtn.addEventListener(
-        "click",
-        async function() {
-
-            try {
-
-                await supabaseClient.auth.signOut();
-
-                currentUser = null;
-
-                showLogin();
-
-                setStatus(
-                    loginMessage,
-                    "Logged out.",
-                    "success"
-                );
-
-            } catch (error) {
-
-                console.error(
-                    "LOGOUT:",
-                    error
-                );
-            }
-        }
-    );
-}
-
-
-/* =======================================================
-   AUTH STATE
-======================================================= */
-
-supabaseClient.auth.onAuthStateChange(
-    async function(event, session) {
-
-        console.log(
-            "AUTH EVENT:",
-            event
-        );
-
-        currentUser =
-            session?.user || null;
-
-        if (currentUser) {
+        if (session?.user) {
 
             showDashboard(
-                currentUser
+                session.user
             );
+
+            await loadProjects();
 
             await loadAdminProjects();
 
         } else {
+
+            showLogin();
+
+            await loadProjects();
+        }
+
+    } catch (err) {
+
+        console.error(
+            "AUTO LOGIN ERROR:",
+            err
+        );
+
+        showLogin();
+    }
+}
+
+
+// ------------------------------------------------------------
+// AUTH STATE LISTENER
+// ------------------------------------------------------------
+
+supabaseClient.auth.onAuthStateChange(
+    async (event, session) => {
+
+        console.log(
+            "AUTH:",
+            event
+        );
+
+        if (session?.user) {
+
+            showDashboard(
+                session.user
+            );
+
+            await loadProjects();
+
+            await loadAdminProjects();
+
+        } else {
+
+            currentUser = null;
 
             showLogin();
         }
@@ -560,21 +311,12 @@ supabaseClient.auth.onAuthStateChange(
 );
 
 
-/* =======================================================
-   LOAD PROJECTS
-======================================================= */
+// ============================================================
+// LOAD PROJECTS
+// ============================================================
 
 async function loadProjects() {
 
-    console.log(
-        "Loading projects..."
-    );
-
-    if (databaseStatus) {
-        databaseStatus.textContent = "Loading...";
-    }
-
-
     try {
 
         const {
@@ -583,9 +325,19 @@ async function loadProjects() {
         } =
             await supabaseClient
                 .from("projects")
-                .select(
-                    "id,title,description,category,file_url,file_name,owner_id,created_at,access_type,price"
-                )
+                .select(`
+                    id,
+                    title,
+                    description,
+                    category,
+                    file_url,
+                    file_name,
+                    owner_id,
+                    created_at,
+                    access_type,
+                    price,
+                    storage_path
+                `)
                 .order(
                     "created_at",
                     {
@@ -593,632 +345,153 @@ async function loadProjects() {
                     }
                 );
 
-
         if (error) {
 
             console.error(
-                "PROJECT LOAD ERROR:",
+                "LOAD PROJECTS:",
                 error
             );
-
-            allProjects = [];
-
-            renderProjects();
-
-            if (databaseStatus) {
-                databaseStatus.textContent = "ERROR";
-                databaseStatus.style.color =
-                    "#ff7189";
-            }
 
             return;
         }
 
-
         allProjects =
-            Array.isArray(data)
-                ? data
-                : [];
+            data || [];
 
-
-        updateStats();
-
-        renderProjects();
-
-
-        if (databaseStatus) {
-
-            databaseStatus.textContent = "OK";
-            databaseStatus.style.color =
-                "var(--green)";
-        }
-
-
-    } catch (error) {
-
-        console.error(
-            "LOAD PROJECTS:",
-            error
+        renderProjects(
+            allProjects
         );
 
-        allProjects = [];
+    } catch (err) {
 
-        renderProjects();
-
-        if (databaseStatus) {
-
-            databaseStatus.textContent =
-                "ERROR";
-
-            databaseStatus.style.color =
-                "#ff7189";
-        }
+        console.error(err);
     }
 }
 
 
-/* =======================================================
-   STATS
-======================================================= */
+// ============================================================
+// RENDER PUBLIC PROJECTS
+// ============================================================
 
-function updateStats() {
+function renderProjects(projects) {
 
-    const total =
-        allProjects.length;
+    if (!projectsContainer) return;
 
-    const paid =
-        allProjects.filter(
-            p => normalizeAccess(p) === "paid"
-        ).length;
-
-
-    if (projectCount) {
-        projectCount.textContent = total;
-    }
-
-    if (paidCount) {
-        paidCount.textContent = paid;
-    }
-
-    if (connectionStatus) {
-        connectionStatus.textContent = "Online";
-    }
-
-    if (statusDot) {
-        statusDot.style.background =
-            "var(--green)";
-    }
-}
-
-
-/* =======================================================
-   FILTER
-======================================================= */
-
-function getFilteredProjects() {
-
-    const search =
-        (
-            searchInput?.value || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    const category =
-        categoryFilter?.value || "all";
-
-
-    const access =
-        accessFilter?.value || "all";
-
-
-    return allProjects.filter(
-        project => {
-
-            const title =
-                String(
-                    project.title || ""
-                ).toLowerCase();
-
-
-            const description =
-                String(
-                    project.description || ""
-                ).toLowerCase();
-
-
-            const projectCategory =
-                String(
-                    project.category || "Other"
-                );
-
-
-            const projectAccess =
-                normalizeAccess(project);
-
-
-            const searchOK =
-                !search ||
-                title.includes(search) ||
-                description.includes(search);
-
-
-            const categoryOK =
-                category === "all" ||
-                projectCategory === category;
-
-
-            const accessOK =
-                access === "all" ||
-                projectAccess === access;
-
-
-            return (
-                searchOK &&
-                categoryOK &&
-                accessOK
-            );
-        }
-    );
-}
-
-
-/* =======================================================
-   FILTER EVENTS
-======================================================= */
-
-if (searchInput) {
-    searchInput.addEventListener(
-        "input",
-        renderProjects
-    );
-}
-
-if (categoryFilter) {
-    categoryFilter.addEventListener(
-        "change",
-        renderProjects
-    );
-}
-
-if (accessFilter) {
-    accessFilter.addEventListener(
-        "change",
-        renderProjects
-    );
-}
-
-
-/* =======================================================
-   PROJECT CARD
-======================================================= */
-
-function createProjectCard(
-    project,
-    isAdmin = false
-) {
-
-    const access =
-        normalizeAccess(project);
-
-    const price =
-        getPrice(project);
-
-    const category =
-        escapeHTML(
-            project.category || "Other"
+    // Raha projectsContainer dia section
+    // fa tsy grid, mamorona div vaovao.
+    let grid =
+        document.getElementById(
+            "mah3dProjectGrid"
         );
 
-    const title =
-        escapeHTML(
-            project.title ||
-            "Untitled Project"
+    if (!grid) {
+
+        grid =
+            document.createElement("div");
+
+        grid.id =
+            "mah3dProjectGrid";
+
+        grid.className =
+            "project-grid";
+
+        projectsContainer.appendChild(
+            grid
         );
-
-    const description =
-        escapeHTML(
-            project.description ||
-            "No description."
-        );
-
-    const fileName =
-        escapeHTML(
-            project.file_name || ""
-        );
-
-
-    const badge =
-        access === "paid"
-
-            ? `
-                <span class="badge badge-paid">
-                    💎 PAID
-                </span>
-              `
-
-            : `
-                <span class="badge badge-free">
-                    🟢 FREE
-                </span>
-              `;
-
-
-    const priceHTML =
-        access === "paid"
-
-            ? `
-                <div class="price paid">
-                    ${escapeHTML(
-                        formatMoney(price)
-                    )}
-                </div>
-              `
-
-            : `
-                <div class="price free">
-                    FREE
-                </div>
-              `;
-
-
-    let footer;
-
-
-    if (isAdmin) {
-
-        footer = `
-            <div class="card-footer">
-
-                <button
-                    class="btn btn-secondary"
-                    type="button"
-                    onclick="openProjectModal('${project.id}')"
-                >
-                    View
-                </button>
-
-                <button
-                    class="btn btn-danger"
-                    type="button"
-                    onclick="deleteProject('${project.id}')"
-                >
-                    Delete
-                </button>
-
-            </div>
-        `;
-
-    } else {
-
-        footer = `
-            <div class="card-footer">
-
-                <button
-                    class="btn btn-primary"
-                    type="button"
-                    onclick="openProjectModal('${project.id}')"
-                >
-                    ${
-                        access === "paid"
-                            ? "💎 BUY NOW"
-                            : "⬇ VIEW / DOWNLOAD"
-                    }
-                </button>
-
-            </div>
-        `;
     }
 
-
-    return `
-        <article class="project-card">
-
-            <div class="card-top">
-
-                <div class="badges">
-
-                    <span class="badge badge-category">
-                        ${category}
-                    </span>
-
-                    ${badge}
-
-                </div>
-
-                <h3>
-                    ${title}
-                </h3>
-
-            </div>
-
-
-            <div class="card-body">
-
-                <p class="project-description">
-                    ${description}
-                </p>
-
-                ${priceHTML}
-
-                ${
-                    fileName
-                        ? `
-                            <div
-                                style="
-                                    margin-top:10px;
-                                    color:#637086;
-                                    font-size:11px;
-                                "
-                            >
-                                📁 ${fileName}
-                            </div>
-                          `
-                        : ""
-                }
-
-            </div>
-
-            ${footer}
-
-        </article>
-    `;
-}
-
-
-/* =======================================================
-   RENDER PROJECTS
-======================================================= */
-
-function renderProjects() {
-
-    if (!projectsGrid) {
-        return;
-    }
-
-
-    const projects =
-        getFilteredProjects();
-
+    grid.innerHTML = "";
 
     if (!projects.length) {
 
-        projectsGrid.innerHTML = `
-            <div class="empty">
+        grid.innerHTML =
+            `<div class="empty-projects">
+                Aucun projet disponible.
+            </div>`;
 
-                <div class="empty-icon">
-                    📦
+        return;
+    }
+
+    projects.forEach(project => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "project-card";
+
+        const paid =
+            project.access_type === "paid";
+
+        card.innerHTML = `
+
+            <div class="project-card-inner">
+
+                <div class="project-category">
+                    ${escapeHTML(
+                        project.category || "Other"
+                    )}
                 </div>
 
-                <div>
-                    No projects found.
+                <h3>
+                    ${escapeHTML(
+                        project.title
+                    )}
+                </h3>
+
+                <p>
+                    ${escapeHTML(
+                        project.description || ""
+                    )}
+                </p>
+
+                <div class="project-meta">
+
+                    ${
+                        paid
+                        ?
+                        `<strong>
+                            ${Number(
+                                project.price || 0
+                            ).toLocaleString()}
+                            Ar
+                        </strong>`
+                        :
+                        `<strong>
+                            FREE
+                        </strong>`
+                    }
+
                 </div>
+
+                <button
+                    class="btn btn-primary"
+                    onclick="openProject('${project.id}')"
+                >
+                    ${
+                        paid
+                        ? "BUY NOW"
+                        : "DOWNLOAD"
+                    }
+                </button>
 
             </div>
         `;
 
-        return;
-    }
-
-
-    projectsGrid.innerHTML =
-        projects
-            .map(
-                p =>
-                    createProjectCard(
-                        p,
-                        false
-                    )
-            )
-            .join("");
+        grid.appendChild(card);
+    });
 }
 
 
-/* =======================================================
-   PROJECT MODAL
-======================================================= */
-
-window.openProjectModal =
-    function(projectId) {
-
-        const project =
-            allProjects.find(
-                p =>
-                    String(p.id) ===
-                    String(projectId)
-            );
-
-
-        if (!project) {
-            return;
-        }
-
-
-        currentModalProject =
-            project;
-
-
-        const access =
-            normalizeAccess(project);
-
-        const price =
-            getPrice(project);
-
-
-        if (modalCategory) {
-
-            modalCategory.innerHTML = `
-                <span class="badge badge-category">
-                    ${escapeHTML(
-                        project.category ||
-                        "Other"
-                    )}
-                </span>
-
-                ${
-                    access === "paid"
-
-                        ? `
-                            <span class="badge badge-paid">
-                                💎 PAID
-                            </span>
-                          `
-
-                        : `
-                            <span class="badge badge-free">
-                                🟢 FREE
-                            </span>
-                          `
-                }
-            `;
-        }
-
-
-        if (modalTitle) {
-            modalTitle.textContent =
-                project.title ||
-                "Untitled Project";
-        }
-
-
-        if (modalDescription) {
-            modalDescription.textContent =
-                project.description ||
-                "No description.";
-        }
-
-
-        if (modalPrice) {
-
-            modalPrice.textContent =
-                access === "paid"
-                    ? formatMoney(price)
-                    : "FREE";
-
-            modalPrice.style.color =
-                access === "paid"
-                    ? "var(--gold)"
-                    : "var(--green)";
-        }
-
-
-        if (modalDownload) {
-
-            if (access === "free") {
-
-                modalDownload.href =
-                    project.file_url || "#";
-
-                modalDownload.textContent =
-                    "⬇ DOWNLOAD FREE";
-
-                modalDownload.onclick = null;
-
-            } else {
-
-                /*
-                IMPORTANT:
-                Paid project must NOT directly
-                expose the public storage URL.
-                */
-
-                modalDownload.href = "#";
-
-                modalDownload.textContent =
-                    "💎 BUY WITH MVOLA";
-
-                modalDownload.onclick =
-                    function(event) {
-
-                        event.preventDefault();
-
-                        startMvolaPayment(
-                            project
-                        );
-                    };
-            }
-        }
-
-
-        if (modal) {
-            modal.classList.add("show");
-        }
-    };
-
-
-/* =======================================================
-   CLOSE MODAL
-======================================================= */
-
-function closeProjectModal() {
-
-    if (modal) {
-        modal.classList.remove("show");
-    }
-
-    currentModalProject = null;
-}
-
-
-if (closeModal) {
-
-    closeModal.addEventListener(
-        "click",
-        closeProjectModal
-    );
-}
-
-
-if (modal) {
-
-    modal.addEventListener(
-        "click",
-        function(event) {
-
-            if (
-                event.target === modal
-            ) {
-                closeProjectModal();
-            }
-        }
-    );
-}
-
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (event.key === "Escape") {
-            closeProjectModal();
-        }
-    }
-);
-
-
-/* =======================================================
-   ADMIN PROJECTS
-======================================================= */
+// ============================================================
+// ADMIN PROJECTS
+// ============================================================
 
 async function loadAdminProjects() {
 
-    if (!adminProjects) {
-        return;
-    }
+    if (!currentUser) return;
 
-
-    const user =
-        currentUser ||
-        await getCurrentUser();
-
-
-    if (!user) {
-
-        adminProjects.innerHTML = "";
-
-        return;
-    }
-
+    if (!adminProjects) return;
 
     try {
 
@@ -1228,12 +501,22 @@ async function loadAdminProjects() {
         } =
             await supabaseClient
                 .from("projects")
-                .select(
-                    "id,title,description,category,file_url,file_name,owner_id,created_at,access_type,price"
-                )
+                .select(`
+                    id,
+                    title,
+                    description,
+                    category,
+                    file_url,
+                    file_name,
+                    owner_id,
+                    created_at,
+                    access_type,
+                    price,
+                    storage_path
+                `)
                 .eq(
                     "owner_id",
-                    user.id
+                    currentUser.id
                 )
                 .order(
                     "created_at",
@@ -1242,1048 +525,724 @@ async function loadAdminProjects() {
                     }
                 );
 
-
         if (error) {
 
             console.error(
-                "ADMIN PROJECT ERROR:",
+                "ADMIN PROJECTS:",
                 error
             );
 
-            adminProjects.innerHTML = `
-                <div class="empty">
-                    ${escapeHTML(
+            adminProjects.innerHTML =
+                `<p>Erreur: ${
+                    escapeHTML(
                         error.message
-                    )}
-                </div>
-            `;
+                    )
+                }</p>`;
 
             return;
         }
 
+        adminProjects.innerHTML = "";
 
-        if (!data || !data.length) {
+        if (!data?.length) {
 
-            adminProjects.innerHTML = `
-                <div class="empty">
-
-                    <div class="empty-icon">
-                        📦
-                    </div>
-
-                    <div>
-                        No projects uploaded yet.
-                    </div>
-
-                </div>
-            `;
+            adminProjects.innerHTML =
+                `<p>
+                    Aucun projet uploadé.
+                </p>`;
 
             return;
         }
 
+        data.forEach(project => {
 
-        adminProjects.innerHTML =
-            data
-                .map(
-                    project =>
-                        createProjectCard(
-                            project,
-                            true
-                        )
-                )
-                .join("");
+            const row =
+                document.createElement("div");
 
+            row.className =
+                "admin-project-row";
 
-    } catch (error) {
+            row.innerHTML = `
 
-        console.error(
-            "ADMIN PROJECT EXCEPTION:",
-            error
-        );
+                <div>
+                    <strong>
+                        ${escapeHTML(
+                            project.title
+                        )}
+                    </strong>
+
+                    <small>
+                        ${escapeHTML(
+                            project.file_name
+                        )}
+                    </small>
+                </div>
+
+                <div>
+                    ${
+                        project.access_type === "paid"
+                        ?
+                        `${Number(
+                            project.price || 0
+                        ).toLocaleString()} Ar`
+                        :
+                        "FREE"
+                    }
+                </div>
+
+                <button
+                    class="btn btn-danger"
+                    onclick="deleteProject('${project.id}')"
+                >
+                    DELETE
+                </button>
+            `;
+
+            adminProjects.appendChild(row);
+        });
+
+    } catch (err) {
+
+        console.error(err);
     }
 }
 
 
-/* =======================================================
-   SAFE FILE NAME
-======================================================= */
-
-function makeSafeFileName(
-    fileName
-) {
-
-    return fileName
-        .normalize("NFKD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        )
-        .replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-        );
-}
-
-
-/* =======================================================
-   UPLOAD
-======================================================= */
+// ============================================================
+// UPLOAD
+// ============================================================
 
 if (uploadForm) {
 
     uploadForm.addEventListener(
         "submit",
-        async function(event) {
+        async function (event) {
 
             event.preventDefault();
 
-
-            console.log(
-                "MAH3D UPLOAD START"
-            );
-
-
-            const user =
-                currentUser ||
-                await getCurrentUser();
-
-
-            if (!user) {
-
-                setStatus(
-                    uploadStatus,
-                    "Tsy maintsy manao login aloha.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            const title =
-                projectTitle?.value.trim() || "";
-
-
-            const description =
-                projectDescription?.value.trim() || "";
-
-
-            const category =
-                projectCategory?.value ||
-                "Other";
-
-
-            const access =
-                projectAccess?.value ||
-                "free";
-
-
-            const file =
-                projectFile?.files?.[0];
-
-
-            let price = 0;
-
-
-            if (access === "paid") {
-
-                price =
-                    Number(
-                        projectPrice?.value || 0
-                    );
-
-
-                if (
-                    !Number.isFinite(price) ||
-                    price <= 0
-                ) {
-
-                    setStatus(
-                        uploadStatus,
-                        "Ampidiro ny vidiny ho an'ny PAID model.",
-                        "error"
-                    );
-
-                    return;
-                }
-            }
-
-
-            if (!title) {
-
-                setStatus(
-                    uploadStatus,
-                    "Ampidiro ny project title.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (!file) {
-
-                setStatus(
-                    uploadStatus,
-                    "Misafidiana fichier.",
-                    "error"
-                );
-
-                return;
-            }
-
-
-            if (uploadBtn) {
-
-                uploadBtn.disabled = true;
-                uploadBtn.textContent =
-                    "UPLOADING...";
-            }
-
-
-            if (uploadProgress) {
-                uploadProgress.style.width =
-                    "10%";
-            }
-
-
-            try {
-
-                setStatus(
-                    uploadStatus,
-                    "Preparing upload..."
-                );
-
-
-                const timestamp =
-                    Date.now();
-
-
-                const safeName =
-                    makeSafeFileName(
-                        file.name
-                    );
-
-
-                const storagePath =
-                    `${user.id}/${timestamp}_${safeName}`;
-
-
-                if (uploadProgress) {
-                    uploadProgress.style.width =
-                        "25%";
-                }
-
-
-                setStatus(
-                    uploadStatus,
-                    "Uploading file..."
-                );
-
-
-                console.log(
-                    "Storage path:",
-                    storagePath
-                );
-
-
-                const {
-                    error:
-                        uploadError
-                } =
-                    await supabaseClient
-                        .storage
-                        .from(STORAGE_BUCKET)
-                        .upload(
-                            storagePath,
-                            file,
-                            {
-                                cacheControl:
-                                    "3600",
-
-                                upsert:
-                                    false
-                            }
-                        );
-
-
-                if (uploadError) {
-
-                    console.error(
-                        "STORAGE UPLOAD ERROR:",
-                        uploadError
-                    );
-
-                    throw new Error(
-                        uploadError.message
-                    );
-                }
-
-
-                if (uploadProgress) {
-                    uploadProgress.style.width =
-                        "60%";
-                }
-
-
-                setStatus(
-                    uploadStatus,
-                    "Creating project record..."
-                );
-
-
-                const {
-                    data:
-                        publicUrlData
-                } =
-                    supabaseClient
-                        .storage
-                        .from(STORAGE_BUCKET)
-                        .getPublicUrl(
-                            storagePath
-                        );
-
-
-                const fileUrl =
-                    publicUrlData?.publicUrl;
-
-
-                if (!fileUrl) {
-
-                    throw new Error(
-                        "Could not create file URL."
-                    );
-                }
-
-
-                const {
-                    error:
-                        databaseError
-                } =
-                    await supabaseClient
-                        .from("projects")
-                        .insert({
-
-                            title:
-                                title,
-
-                            description:
-                                description,
-
-                            category:
-                                category,
-
-                            file_url:
-                                fileUrl,
-
-                            file_name:
-                                file.name,
-
-                            owner_id:
-                                user.id,
-
-                            access_type:
-                                access,
-
-                            price:
-                                access === "paid"
-                                    ? price
-                                    : 0
-                        });
-
-
-                if (databaseError) {
-
-                    console.error(
-                        "DATABASE INSERT ERROR:",
-                        databaseError
-                    );
-
-
-                    try {
-
-                        await supabaseClient
-                            .storage
-                            .from(STORAGE_BUCKET)
-                            .remove([
-                                storagePath
-                            ]);
-
-                    } catch (cleanupError) {
-
-                        console.warn(
-                            "Cleanup:",
-                            cleanupError
-                        );
-                    }
-
-
-                    throw new Error(
-                        databaseError.message
-                    );
-                }
-
-
-                if (uploadProgress) {
-                    uploadProgress.style.width =
-                        "100%";
-                }
-
-
-                setStatus(
-                    uploadStatus,
-
-                    access === "paid"
-                        ? "💎 PAID model uploaded successfully!"
-                        : "🟢 FREE model uploaded successfully!",
-
-                    "success"
-                );
-
-
-                uploadForm.reset();
-
-
-                if (projectPrice) {
-                    projectPrice.value = "0";
-                }
-
-
-                if (projectAccess) {
-                    projectAccess.value = "free";
-                }
-
-
-                updatePriceVisibility();
-
-
-                await loadProjects();
-
-                await loadAdminProjects();
-
-
-                setTimeout(
-                    function() {
-
-                        if (uploadProgress) {
-                            uploadProgress.style.width =
-                                "0%";
-                        }
-
-                    },
-                    1500
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "UPLOAD ERROR:",
-                    error
-                );
-
-
-                setStatus(
-                    uploadStatus,
-
-                    "Upload failed: " +
-                    (
-                        error.message ||
-                        "Unknown error"
-                    ),
-
-                    "error"
-                );
-
-
-                if (uploadProgress) {
-                    uploadProgress.style.width =
-                        "0%";
-                }
-
-
-            } finally {
-
-                if (uploadBtn) {
-
-                    uploadBtn.disabled = false;
-
-                    uploadBtn.textContent =
-                        "🚀 UPLOAD PROJECT";
-                }
-            }
+            await uploadProject();
         }
-    );
-
-} else {
-
-    console.error(
-        "❌ uploadForm NOT FOUND"
     );
 }
 
 
-/* =======================================================
-   DELETE PROJECT
-======================================================= */
+async function uploadProject() {
 
-window.deleteProject =
-    async function(projectId) {
+    if (!currentUser) {
 
-        const user =
-            currentUser ||
-            await getCurrentUser();
+        alert(
+            "Mila manao Login aloha."
+        );
 
-
-        if (!user) {
-
-            alert(
-                "Login required."
-            );
-
-            return;
-        }
-
-
-        const project =
-            allProjects.find(
-                p =>
-                    String(p.id) ===
-                    String(projectId)
-            );
-
-
-        if (!project) {
-
-            alert(
-                "Project not found."
-            );
-
-            return;
-        }
-
-
-        if (
-            String(project.owner_id) !==
-            String(user.id)
-        ) {
-
-            alert(
-                "You can only delete your own project."
-            );
-
-            return;
-        }
-
-
-        if (
-            !window.confirm(
-                `Delete "${project.title}"?`
-            )
-        ) {
-            return;
-        }
-
-
-        try {
-
-            const {
-                error:
-                    deleteError
-            } =
-                await supabaseClient
-                    .from("projects")
-                    .delete()
-                    .eq(
-                        "id",
-                        projectId
-                    )
-                    .eq(
-                        "owner_id",
-                        user.id
-                    );
-
-
-            if (deleteError) {
-
-                throw new Error(
-                    deleteError.message
-                );
-            }
-
-
-            /*
-            Try storage cleanup.
-            */
-
-            if (project.file_url) {
-
-                const marker =
-                    "/storage/v1/object/public/projects/";
-
-
-                const index =
-                    project.file_url.indexOf(
-                        marker
-                    );
-
-
-                if (index !== -1) {
-
-                    const path =
-                        decodeURIComponent(
-                            project.file_url.substring(
-                                index +
-                                marker.length
-                            )
-                        );
-
-
-                    if (path) {
-
-                        const {
-                            error:
-                                storageError
-                        } =
-                            await supabaseClient
-                                .storage
-                                .from(STORAGE_BUCKET)
-                                .remove([
-                                    path
-                                ]);
-
-
-                        if (storageError) {
-
-                            console.warn(
-                                "Storage cleanup:",
-                                storageError
-                            );
-                        }
-                    }
-                }
-            }
-
-
-            alert(
-                "Project deleted successfully."
-            );
-
-
-            await loadProjects();
-
-            await loadAdminProjects();
-
-
-        } catch (error) {
-
-            console.error(
-                "DELETE ERROR:",
-                error
-            );
-
-            alert(
-                "Delete failed: " +
-                (
-                    error.message ||
-                    "Unknown error"
-                )
-            );
-        }
-    };
-
-
-/* =======================================================
-   MVOLA PAYMENT
-======================================================= */
-
-async function startMvolaPayment(project) {
-
-    if (!project) {
-        return;
-    }
-
-
-    if (
-        normalizeAccess(project) !== "paid"
-    ) {
-
-        window.location.href =
-            project.file_url || "#";
+        showLogin();
 
         return;
     }
 
+    const title =
+        projectTitle?.value.trim();
 
-    const price =
-        getPrice(project);
+    const category =
+        projectCategory?.value ||
+        "Other";
 
+    const access =
+        projectAccess?.value ||
+        "free";
+
+    const description =
+        projectDescription?.value.trim() ||
+        "";
+
+    const file =
+        projectFile?.files?.[0];
+
+    let price = 0;
+
+    if (projectPrice) {
+
+        price =
+            Number(
+                projectPrice.value
+            ) || 0;
+    }
+
+    if (!title) {
+
+        alert(
+            "Ampidiro ny titre."
+        );
+
+        return;
+    }
+
+    if (!file) {
+
+        alert(
+            "Misafidiana fichier."
+        );
+
+        return;
+    }
 
     if (
-        !Number.isFinite(price) ||
+        access === "paid" &&
         price <= 0
     ) {
 
         alert(
-            "Prix invalide."
+            "Ampidiro ny prix."
         );
 
         return;
     }
-
-
-    let phone =
-        window.prompt(
-            "Ampidiro ny numéro MVola:\n\nOhatra: 0341234567"
-        );
-
-
-    if (phone === null) {
-        return;
-    }
-
-
-    phone =
-        phone.trim();
-
-
-    if (!phone) {
-
-        alert(
-            "Ampidiro ny numéro MVola."
-        );
-
-        return;
-    }
-
-
-    /*
-    Normalize +261xxxxxxxxx -> 03xxxxxxxx
-    */
-
-    phone =
-        phone.replace(
-            /\s+/g,
-            ""
-        );
-
-
-    if (
-        phone.startsWith("+261")
-    ) {
-
-        phone =
-            "0" +
-            phone.substring(4);
-
-    } else if (
-        phone.startsWith("261")
-    ) {
-
-        phone =
-            "0" +
-            phone.substring(3);
-    }
-
-
-    if (
-        !/^03\d{8}$/.test(phone)
-    ) {
-
-        alert(
-            "Numéro MVola invalide. Ohatra: 0341234567"
-        );
-
-        return;
-    }
-
-
-    const orderId =
-        "MAH3D-" +
-        Date.now() +
-        "-" +
-        Math.random()
-            .toString(36)
-            .substring(2, 8)
-            .toUpperCase();
-
 
     try {
 
-        /*
-        Disable button while request runs.
-        */
+        if (uploadBtn) {
 
-        if (modalDownload) {
+            uploadBtn.disabled =
+                true;
 
-            modalDownload.disabled = true;
-
-            modalDownload.textContent =
-                "⏳ PAYMENT...";
+            uploadBtn.textContent =
+                "UPLOADING...";
         }
 
+        status(
+            "Préparation de l'upload...",
+            "info"
+        );
 
-        console.log(
-            "Starting MVola payment:",
-            {
-                orderId,
-                projectId: project.id,
-                amount: price
+        if (uploadProgress) {
+
+            uploadProgress.value =
+                10;
+        }
+
+        // ----------------------------------------------------
+        // SAFE FILE NAME
+        // ----------------------------------------------------
+
+        const safeName =
+            file.name
+                .replace(
+                    /[^a-zA-Z0-9._-]/g,
+                    "_"
+                );
+
+        const storagePath =
+            `${currentUser.id}/${Date.now()}_${safeName}`;
+
+        // ----------------------------------------------------
+        // STORAGE UPLOAD
+        // ----------------------------------------------------
+
+        status(
+            "Upload fichier...",
+            "info"
+        );
+
+        if (uploadProgress) {
+
+            uploadProgress.value =
+                30;
+        }
+
+        const {
+            data: storageData,
+            error: storageError
+        } =
+            await supabaseClient
+                .storage
+                .from("projects")
+                .upload(
+                    storagePath,
+                    file,
+                    {
+                        cacheControl:
+                            "3600",
+                        upsert: false
+                    }
+                );
+
+        if (storageError) {
+
+            throw new Error(
+                "Storage: " +
+                storageError.message
+            );
+        }
+
+        // ----------------------------------------------------
+        // PUBLIC URL
+        // ----------------------------------------------------
+
+        const {
+            data: publicData
+        } =
+            supabaseClient
+                .storage
+                .from("projects")
+                .getPublicUrl(
+                    storagePath
+                );
+
+        const publicUrl =
+            publicData?.publicUrl ||
+            "";
+
+        if (uploadProgress) {
+
+            uploadProgress.value =
+                65;
+        }
+
+        status(
+            "Enregistrement du projet...",
+            "info"
+        );
+
+        // ----------------------------------------------------
+        // DATABASE
+        // ----------------------------------------------------
+
+        const {
+            data: inserted,
+            error: dbError
+        } =
+            await supabaseClient
+                .from("projects")
+                .insert({
+                    title: title,
+                    description:
+                        description,
+                    category: category,
+                    access_type: access,
+                    price:
+                        access === "paid"
+                        ? price
+                        : 0,
+                    file_url:
+                        publicUrl,
+                    file_name:
+                        file.name,
+                    storage_path:
+                        storagePath,
+                    owner_id:
+                        currentUser.id
+                })
+                .select()
+                .single();
+
+        if (dbError) {
+
+            // rollback storage
+            await supabaseClient
+                .storage
+                .from("projects")
+                .remove([
+                    storagePath
+                ]);
+
+            throw new Error(
+                "Database: " +
+                dbError.message
+            );
+        }
+
+        if (uploadProgress) {
+
+            uploadProgress.value =
+                100;
+        }
+
+        status(
+            "✓ Upload réussi !",
+            "success"
+        );
+
+        uploadForm.reset();
+
+        await loadProjects();
+
+        await loadAdminProjects();
+
+        setTimeout(() => {
+
+            if (uploadProgress) {
+
+                uploadProgress.value =
+                    0;
             }
-        );
 
-
-        const response =
-            await fetch(
-                MVOLA_FUNCTION_URL,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify({
-
-                            customerNumber:
-                                phone,
-
-                            amount:
-                                Math.trunc(price),
-
-                            orderId:
-                                orderId,
-
-                            projectId:
-                                project.id,
-
-                            projectTitle:
-                                project.title
-                        })
-                }
+            status(
+                "",
+                ""
             );
 
+        }, 3000);
 
-        const data =
-            await response.json();
-
-
-        console.log(
-            "MVola response:",
-            data
-        );
-
-
-        if (
-            !response.ok ||
-            !data.success
-        ) {
-
-            const errorMessage =
-                data?.result
-                    ?.errorDescription ||
-
-                data?.result
-                    ?.error ||
-
-                data?.error ||
-
-                "MVola payment failed.";
-
-
-            alert(
-                "MVola ERROR:\n\n" +
-                errorMessage
-            );
-
-
-            return;
-        }
-
-
-        alert(
-            "MVola payment request sent.\n\n" +
-            "Order: " +
-            orderId +
-            "\n\n" +
-            "Jereo ny téléphone-nao ary araho ny MVola confirmation."
-        );
-
-
-    } catch (error) {
+    } catch (err) {
 
         console.error(
-            "MVola payment exception:",
-            error
+            "UPLOAD ERROR:",
+            err
         );
 
+        status(
+            "✗ " +
+            err.message,
+            "error"
+        );
 
         alert(
-            "Tsy afaka mifandray amin'ny MVola.\n\n" +
-            (
-                error.message ||
-                "Connection error"
-            )
+            "Upload tsy mety:\n\n" +
+            err.message
         );
-
 
     } finally {
 
-        if (modalDownload) {
+        if (uploadBtn) {
 
-            modalDownload.disabled = false;
+            uploadBtn.disabled =
+                false;
 
-            modalDownload.textContent =
-                "💎 BUY WITH MVOLA";
+            uploadBtn.textContent =
+                "UPLOAD PROJECT";
         }
     }
 }
 
 
-/* =======================================================
-   CONNECTION TEST
-======================================================= */
+// ============================================================
+// DELETE
+// ============================================================
 
-async function testConnection() {
+async function deleteProject(id) {
+
+    if (!currentUser) {
+
+        alert(
+            "Login required."
+        );
+
+        return;
+    }
+
+    const project =
+        allProjects.find(
+            p => p.id === id
+        );
+
+    if (!project) return;
+
+    if (
+        project.owner_id !==
+        currentUser.id
+    ) {
+
+        alert(
+            "Tsy anao ity projet ity."
+        );
+
+        return;
+    }
+
+    const ok =
+        confirm(
+            `Delete "${project.title}" ?`
+        );
+
+    if (!ok) return;
 
     try {
+
+        if (project.storage_path) {
+
+            await supabaseClient
+                .storage
+                .from("projects")
+                .remove([
+                    project.storage_path
+                ]);
+        }
 
         const {
             error
         } =
             await supabaseClient
                 .from("projects")
-                .select(
+                .delete()
+                .eq(
                     "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
+                    id
+                )
+                .eq(
+                    "owner_id",
+                    currentUser.id
                 );
-
 
         if (error) {
 
-            console.error(
-                "Connection error:",
-                error
-            );
-
-            if (connectionStatus) {
-                connectionStatus.textContent =
-                    "Error";
-            }
-
-            if (statusDot) {
-                statusDot.style.background =
-                    "var(--red)";
-            }
-
-            return false;
+            throw error;
         }
 
-
-        if (connectionStatus) {
-            connectionStatus.textContent =
-                "Online";
-        }
-
-
-        if (statusDot) {
-            statusDot.style.background =
-                "var(--green)";
-        }
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Connection exception:",
-            error
-        );
-
-        return false;
-    }
-}
-
-
-/* =======================================================
-   INIT
-======================================================= */
-
-async function init() {
-
-    console.log(
-        "MAH3D initialization..."
-    );
-
-
-    /*
-    PUBLIC PROJECTS
-    */
-
-    await loadProjects();
-
-
-    /*
-    CONNECTION
-    */
-
-    await testConnection();
-
-
-    /*
-    AUTH
-    */
-
-    const user =
-        await getCurrentUser();
-
-
-    currentUser =
-        user;
-
-
-    if (user) {
-
-        console.log(
-            "Current user:",
-            user.email
-        );
-
-
-        showDashboard(
-            user
-        );
-
+        await loadProjects();
 
         await loadAdminProjects();
 
-
-    } else {
-
-        console.log(
-            "Current user: null"
+        alert(
+            "Projet supprimé."
         );
 
+    } catch (err) {
 
-        showLogin();
+        console.error(err);
+
+        alert(
+            "Delete error:\n" +
+            err.message
+        );
+    }
+}
+
+window.deleteProject =
+    deleteProject;
+
+
+// ============================================================
+// PROJECT MODAL
+// ============================================================
+
+function openProject(id) {
+
+    const project =
+        allProjects.find(
+            p => p.id === id
+        );
+
+    if (!project) return;
+
+    currentModalProject =
+        project;
+
+    const modal =
+        document.getElementById(
+            "modal"
+        );
+
+    if (!modal) return;
+
+    const title =
+        document.getElementById(
+            "modalTitle"
+        );
+
+    const description =
+        document.getElementById(
+            "modalDescription"
+        );
+
+    const download =
+        document.getElementById(
+            "modalDownload"
+        );
+
+    if (title) {
+
+        title.textContent =
+            project.title;
     }
 
+    if (description) {
 
-    console.log(
-        "MAH3D initialization complete."
+        description.textContent =
+            project.description || "";
+    }
+
+    if (download) {
+
+        if (
+            project.access_type ===
+            "free"
+        ) {
+
+            download.href =
+                project.file_url;
+
+            download.textContent =
+                "DOWNLOAD";
+
+            download.style.display =
+                "inline-flex";
+
+        } else {
+
+            download.removeAttribute(
+                "href"
+            );
+
+            download.textContent =
+                "BUY WITH MVOLA";
+
+            download.style.display =
+                "inline-flex";
+
+            download.onclick =
+                () => buyProject(project);
+        }
+    }
+
+    modal.classList.add(
+        "active"
+    );
+
+    modal.style.display =
+        "flex";
+}
+
+window.openProject =
+    openProject;
+
+
+function closeModal() {
+
+    const modal =
+        document.getElementById(
+            "modal"
+        );
+
+    if (!modal) return;
+
+    modal.classList.remove(
+        "active"
+    );
+
+    modal.style.display =
+        "none";
+}
+
+window.closeModal =
+    closeModal;
+
+
+// ============================================================
+// MVOLA PLACEHOLDER
+// ============================================================
+
+async function buyProject(project) {
+
+    alert(
+        "MVola payment mbola ao amin'ny test mode.\n\n" +
+        "Projet: " +
+        project.title +
+        "\n" +
+        "Prix: " +
+        Number(
+            project.price || 0
+        ).toLocaleString() +
+        " Ar"
+    );
+}
+
+window.buyProject =
+    buyProject;
+
+
+// ============================================================
+// HTML ESCAPE
+// ============================================================
+
+function escapeHTML(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+}
+
+
+// ============================================================
+// PRICE FIELD
+// ============================================================
+
+if (projectAccess) {
+
+    projectAccess.addEventListener(
+        "change",
+        () => {
+
+            const priceGroup =
+                document.getElementById(
+                    "priceGroup"
+                );
+
+            if (!priceGroup)
+                return;
+
+            if (
+                projectAccess.value ===
+                "paid"
+            ) {
+
+                priceGroup.style.display =
+                    "block";
+
+            } else {
+
+                priceGroup.style.display =
+                    "none";
+
+                if (projectPrice) {
+
+                    projectPrice.value =
+                        "0";
+                }
+            }
+        }
     );
 }
 
 
-/* =======================================================
-   START
-======================================================= */
+// ============================================================
+// START
+// ============================================================
 
-init();
+document.addEventListener(
+    "DOMContentLoaded",
+    async () => {
+
+        console.log(
+            "================================"
+        );
+
+        console.log(
+            "MAH3D SITE STARTED"
+        );
+
+        console.log(
+            "================================"
+        );
+
+        await checkSession();
+    }
+);
