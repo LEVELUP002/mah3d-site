@@ -55,7 +55,7 @@ if (!window.supabase) {
 if (
   !SUPABASE_KEY ||
   SUPABASE_KEY ===
-    "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE"
+    "sb_secret_zpZpYBLTpU9GeppyUrUWLw_UfVCvBZu"
 ) {
 
   console.error(
